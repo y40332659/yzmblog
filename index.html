@@ -109,6 +109,25 @@
             gap: 16px;
         }
         
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
         .btn {
             padding: 10px 20px;
             border-radius: 8px;
@@ -301,6 +320,140 @@
             color: #ccc;
         }
         
+        /* 模态框通用样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: #1a1a1a;
+            margin: 50px auto;
+            padding: 40px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            font-size: 32px;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: #fff;
+        }
+        
+        .modal-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .modal-subtitle {
+            color: #999;
+            margin-bottom: 32px;
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ccc;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ea4c89;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #666;
+        }
+        
+        /* 图片上传区域 */
+        .upload-area {
+            border: 2px dashed #333;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 24px;
+        }
+        
+        .upload-area:hover {
+            border-color: #ea4c89;
+            background-color: rgba(234, 76, 137, 0.05);
+        }
+        
+        .upload-area.has-image {
+            padding: 0;
+            border: none;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .upload-text {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .upload-preview {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .upload-preview.show {
+            display: block;
+        }
+        
         /* 作品预览模态框 */
         .preview-modal {
             display: none;
@@ -468,21 +621,6 @@
             color: #000;
         }
         
-        .preview-close {
-            position: fixed;
-            top: 20px;
-            right: 40px;
-            font-size: 40px;
-            color: #666;
-            cursor: pointer;
-            z-index: 2001;
-            transition: color 0.2s;
-        }
-        
-        .preview-close:hover {
-            color: #fff;
-        }
-        
         /* 评论区 */
         .preview-comments {
             margin-top: 24px;
@@ -543,28 +681,6 @@
             margin-left: 42px;
         }
         
-        .comment-form {
-            margin-top: 16px;
-        }
-        
-        .comment-input {
-            width: 100%;
-            padding: 12px;
-            background-color: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-            resize: vertical;
-            min-height: 80px;
-            margin-bottom: 12px;
-        }
-        
-        .comment-input:focus {
-            outline: none;
-            border-color: #ea4c89;
-        }
-        
         /* Toast 提示 */
         .toast {
             position: fixed;
@@ -614,53 +730,280 @@
         .empty-state p {
             font-size: 14px;
         }
-    </style>
+        
+        /* 用户下拉菜单 */
+        .user-menu {
+            position: relative;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            margin-top: 8px;
+            min-width: 180px;
+            display: none;
+            z-index: 1001;
+        }
+        
+        .user-dropdown.show {
+            display: block;
+        }
+        
+        .user-dropdown-item {
+            padding: 12px 20px;
+            color: #ccc;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .user-dropdown-item:hover {
+            background-color: #222;
+            color: #fff;
+        }
+        
+        .user-dropdown-item.danger {
+            color: #ff6b6b;
+        }
+        
+        .user-dropdown-item.danger:hover {
+            background-color: rgba(255, 107, 107, 0.1);
+        }
+        
+        /* 标签输入 */
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            background-color: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        
+        .tag-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background-color: #ea4c89;
+            border-radius: 16px;
+            font-size: 13px;
+        }
+        
+        .tag-chip span {
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+        
+        .tags-input-container input {
+            flex: 1;
+            min-width: 100px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        /* 作品集标签页 */
+        .portfolio-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 0 40px;
+            margin-top: 20px;
+        }
+        
+        .portfolio-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.2s;
+        }
+        
+        .portfolio-tab:hover {
+            color: #fff;
+        }
+        
+        .portfolio-tab.active {
+            background-color: #ea4c89;
+            color: #fff;
+        }
+        
+        
 </head>
 <body>
     <!-- 导航栏 -->
     <nav class="navbar">
         <div class="navbar-left">
-            <a href="#" class="logo">Dribbb</a>
+            <a href="#" class="logo" onclick="showMainPage()">Dribbb</a>
             <div class="nav-links">
-                <a class="nav-link active">Popular</a>
-                <a class="nav-link">New</a>
-                <a class="nav-link">Following</a>
+                <a class="nav-link active" onclick="showMainPage()">热门作品</a>
+                <a class="nav-link" onclick="showMyWorks()">我的作品</a>
             </div>
         </div>
         
         <div class="navbar-center">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Search shots..." onkeyup="handleSearch(event)">
+                <input type="text" id="searchInput" placeholder="搜索作品..." onkeyup="handleSearch(event)">
             </div>
         </div>
         
-        <div class="navbar-right">
-            <button class="btn btn-outline">Sign in</button>
-            <button class="btn btn-primary">Join Free</button>
+        <div class="navbar-right" id="navbarRight">
+            <button class="btn btn-outline" onclick="openLoginModal()">登录</button>
+            <button class="btn btn-primary" onclick="openRegisterModal()">注册</button>
         </div>
     </nav>
     
     <!-- 分类标签栏 -->
-    <div class="category-bar">
-        <div class="category-tag active" onclick="filterByCategory('all')">All Shots</div>
-        <div class="category-tag" onclick="filterByCategory('web')">Web Design</div>
-        <div class="category-tag" onclick="filterByCategory('mobile')">Mobile</div>
-        <div class="category-tag" onclick="filterByCategory('branding')">Branding</div>
-        <div class="category-tag" onclick="filterByCategory('illustration')">Illustration</div>
-        <div class="category-tag" onclick="filterByCategory('animation')">Animation</div>
-        <div class="category-tag" onclick="filterByCategory('product')">Product Design</div>
-        <div class="category-tag" onclick="filterByCategory('typography')">Typography</div>
+    <div class="category-bar" id="categoryBar">
+        <div class="category-tag active" onclick="filterByCategory('all')">全部作品</div>
+        <div class="category-tag" onclick="filterByCategory('web')">网页设计</div>
+        <div class="category-tag" onclick="filterByCategory('mobile')">移动应用</div>
+        <div class="category-tag" onclick="filterByCategory('branding')">品牌设计</div>
+        <div class="category-tag" onclick="filterByCategory('illustration')">插画设计</div>
+        <div class="category-tag" onclick="filterByCategory('animation')">动画设计</div>
+        <div class="category-tag" onclick="filterByCategory('product')">产品设计</div>
+        <div class="category-tag" onclick="filterByCategory('typography')">字体设计</div>
+    </div>
+    
+    <!-- 作品集标签页 -->
+    <div class="portfolio-tabs" id="portfolioTabs" style="display: none;">
+        <div class="portfolio-tab active" onclick="showMainPage()">全部作品</div>
+        <div class="portfolio-tab" onclick="showMyWorks()">我的作品</div>
     </div>
     
     <!-- 作品瀑布流 -->
     <div class="masonry-grid" id="shotsGrid">
-        <!-- 作品卡片将通过 JavaScript 动态生成 -->
+    </div>
+    
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('registerModal')">&times;</span>
+            <h1 class="modal-title">创建账号</h1>
+            <p class="modal-subtitle">加入我们，分享你的创意设计</p>
+            
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="registerUsername" placeholder="请输入用户名" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="registerEmail" placeholder="请输入邮箱" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="registerPassword" placeholder="请输入密码" required minlength="6">
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;">注册</button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 24px; color: #999; font-size: 14px;">
+                已有账号？<a href="#" style="color: #ea4c89; text-decoration: none;" onclick="closeModal('registerModal'); openLoginModal()">立即登录</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('loginModal')">&times;</span>
+            <h1 class="modal-title">欢迎回来</h1>
+            <p class="modal-subtitle">登录以继续浏览和分享作品</p>
+            
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="loginEmail" placeholder="请输入邮箱" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入密码" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;">登录</button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 24px; color: #999; font-size: 14px;">
+                没有账号？<a href="#" style="color: #ea4c89; text-decoration: none;" onclick="closeModal('loginModal'); openRegisterModal()">立即注册</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- 上传作品模态框 -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="modal-close" onclick="closeModal('uploadModal')">&times;</span>
+            <h1 class="modal-title">分享你的作品</h1>
+            <p class="modal-subtitle">让更多人看到你的设计</p>
+            
+            <form onsubmit="handleUpload(event)">
+                <div class="form-group">
+                    <label>作品图片</label>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('uploadImage').click()">
+                        <div id="uploadPlaceholder">
+                            <div class="upload-icon">📷</div>
+                            <div class="upload-text">点击上传图片<br>支持 JPG、PNG、GIF，建议尺寸 800x600</div>
+                        </div>
+                        <img id="uploadPreview" class="upload-preview" alt="预览">
+                    </div>
+                    <input type="file" id="uploadImage" accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
+                </div>
+                
+                <div class="form-group">
+                    <label>作品标题</label>
+                    <input type="text" id="uploadTitle" placeholder="给你的作品起个名字" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>作品描述</label>
+                    <textarea id="uploadDescription" placeholder="简单描述一下你的设计思路..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>分类</label>
+                    <select id="uploadCategory" required>
+                        <option value="">请选择分类</option>
+                        <option value="web">网页设计</option>
+                        <option value="mobile">移动应用</option>
+                        <option value="branding">品牌设计</option>
+                        <option value="illustration">插画设计</option>
+                        <option value="animation">动画设计</option>
+                        <option value="product">产品设计</option>
+                        <option value="typography">字体设计</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>标签</label>
+                    <div class="tags-input-container" id="tagsContainer">
+                        <input type="text" id="tagInput" placeholder="输入标签，按回车添加" onkeydown="handleTagInput(event)">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;">发布作品</button>
+            </form>
+        </div>
     </div>
     
     <!-- 作品预览模态框 -->
     <div id="previewModal" class="preview-modal">
-        <span class="preview-close" onclick="closePreview()">&times;</span>
+        <span class="modal-close" style="position: fixed; top: 20px; right: 40px; font-size: 40px;" onclick="closePreview()">&times;</span>
         <div class="preview-content">
             <div class="preview-image-container">
                 <img id="previewImage" class="preview-image" src="" alt="">
@@ -696,19 +1039,19 @@
                 
                 <div class="preview-actions">
                     <button class="action-btn like" id="likeBtn" onclick="toggleLike()">
-                        <span>❤️</span> Like
+                        <span>❤️</span> 点赞
                     </button>
                     <button class="action-btn collect" id="collectBtn" onclick="toggleCollect()">
-                        <span>💾</span> Collect
+                        <span>💾</span> 收藏
                     </button>
                 </div>
                 
                 <div class="preview-comments">
-                    <h3>Comments (<span id="commentCount">0</span>)</h3>
+                    <h3>评论 (<span id="commentCount">0</span>)</h3>
                     <div class="comment-list" id="commentList"></div>
                     <div class="comment-form">
-                        <textarea class="comment-input" id="commentInput" placeholder="Add a comment..."></textarea>
-                        <button class="btn btn-primary" onclick="addComment()" style="width: 100%;">Post Comment</button>
+                        <textarea class="comment-input" id="detailCommentInput" placeholder="写下你的评论..." style="margin-top: 16px; width: 100%; padding: 12px; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 14px; resize: vertical; min-height: 80px; outline: none;" onfocus="this.style.borderColor='#ea4c89'" onblur="this.style.borderColor='#333'"></textarea>
+                        <button class="btn btn-primary" onclick="addComment()" style="width: 100%; margin-top: 12px;">发布评论</button>
                     </div>
                 </div>
             </div>
@@ -719,215 +1062,163 @@
     <div id="toast" class="toast"></div>
     
     <script>
-        // 示例作品数据
-        let shots = [
-            {
-                id: 1,
-                title: "Dashboard Design System",
-                author: "Sarah Chen",
-                description: "A comprehensive dashboard design system featuring dark mode support, responsive layouts, and extensive component library. Perfect for SaaS applications and data-driven products.",
-                category: "web",
-                tags: ["Dashboard", "UI Design", "Dark Mode", "SaaS"],
-                image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
-                likes: 1247,
-                views: 8934,
-                collects: 342,
-                liked: false,
-                collected: false,
-                comments: [
-                    { author: "Alex Kim", text: "Amazing attention to detail! The dark mode looks stunning.", rating: 5 },
-                    { author: "Jordan Lee", text: "This is exactly what I needed for my project. Great work!", rating: 5 }
-                ],
-                createdAt: "2 hours ago"
-            },
-            {
-                id: 2,
-                title: "E-commerce Mobile App",
-                author: "Mike Design",
-                description: "Modern e-commerce mobile app design with intuitive navigation, beautiful product cards, and seamless checkout experience.",
-                category: "mobile",
-                tags: ["Mobile", "E-commerce", "Shopping", "iOS"],
-                image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=800&fit=crop",
-                likes: 892,
-                views: 5621,
-                collects: 156,
-                liked: false,
-                collected: false,
-                comments: [
-                    { author: "Emma Wilson", text: "Clean and intuitive design!", rating: 4 }
-                ],
-                createdAt: "5 hours ago"
-            },
-            {
-                id: 3,
-                title: "Brand Identity - Tech Startup",
-                author: "Creative Studio",
-                description: "Complete brand identity design for a tech startup including logo, color palette, typography, and brand guidelines.",
-                category: "branding",
-                tags: ["Branding", "Logo", "Identity", "Startup"],
-                image: "https://images.unsplash.com/photo-1634942537034-2531766767d1?w=600&h=450&fit=crop",
-                likes: 2156,
-                views: 12453,
-                collects: 678,
-                liked: false,
-                collected: false,
-                comments: [],
-                createdAt: "1 day ago"
-            },
-            {
-                id: 4,
-                title: "Travel App Illustration Set",
-                author: "Illustrator Pro",
-                description: "A collection of custom illustrations for a travel booking application. Features various travel scenarios and destinations.",
-                category: "illustration",
-                tags: ["Illustration", "Travel", "Vector", "App"],
-                image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&h=500&fit=crop",
-                likes: 1563,
-                views: 9876,
-                collects: 423,
-                liked: false,
-                collected: false,
-                comments: [
-                    { author: "Tom Baker", text: "Beautiful illustrations!", rating: 5 }
-                ],
-                createdAt: "2 days ago"
-            },
-            {
-                id: 5,
-                title: "Loading Animation Collection",
-                author: "Motion Master",
-                description: "A set of smooth and creative loading animations for web and mobile applications. Built with CSS and Lottie.",
-                category: "animation",
-                tags: ["Animation", "Loading", "CSS", "Lottie"],
-                image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=400&fit=crop",
-                likes: 3421,
-                views: 18765,
-                collects: 891,
-                liked: false,
-                collected: false,
-                comments: [],
-                createdAt: "3 days ago"
-            },
-            {
-                id: 6,
-                title: "Minimalist Typography Poster",
-                author: "Type Explorer",
-                description: "Experimental typography poster exploring the relationship between form and meaning through letterforms.",
-                category: "typography",
-                tags: ["Typography", "Poster", "Minimal", "Art"],
-                image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=750&fit=crop",
-                likes: 987,
-                views: 6543,
-                collects: 234,
-                liked: false,
-                collected: false,
-                comments: [],
-                createdAt: "4 days ago"
-            },
-            {
-                id: 7,
-                title: "Fitness Tracker Interface",
-                author: "UX Wizard",
-                description: "Health and fitness tracking app with comprehensive data visualization, workout plans, and progress tracking.",
-                category: "product",
-                tags: ["Fitness", "Health", "Tracker", "Dashboard"],
-                image: "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=600&h=400&fit=crop",
-                likes: 1876,
-                views: 11234,
-                collects: 456,
-                liked: false,
-                collected: false,
-                comments: [
-                    { author: "FitLife", text: "Great design for fitness tracking!", rating: 5 }
-                ],
-                createdAt: "5 days ago"
-            },
-            {
-                id: 8,
-                title: "Social Media Dashboard",
-                author: "Data Visualizer",
-                description: "Analytics dashboard for social media management with real-time data and performance metrics.",
-                category: "web",
-                tags: ["Dashboard", "Analytics", "Social Media", "Data"],
-                image: "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=600&h=350&fit=crop",
-                likes: 2543,
-                views: 15678,
-                collects: 567,
-                liked: false,
-                collected: false,
-                comments: [],
-                createdAt: "6 days ago"
-            },
-            {
-                id: 9,
-                title: "Banking App Redesign",
-                author: "FinTech Designer",
-                description: "Modern banking application with focus on security, simplicity, and user experience.",
-                category: "mobile",
-                tags: ["Banking", "FinTech", "Finance", "Security"],
-                image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=600&fit=crop",
-                likes: 3210,
-                views: 19876,
-                collects: 789,
-                liked: false,
-                collected: false,
-                comments: [
-                    { author: "BankUser", text: "Finally a banking app that looks modern!", rating: 5 }
-                ],
-                createdAt: "1 week ago"
-            },
-            {
-                id: 10,
-                title: "Coffee Shop Branding",
-                author: "Brand Artist",
-                description: "Complete brand identity for an artisanal coffee shop including packaging, signage, and merchandise.",
-                category: "branding",
-                tags: ["Coffee", "Branding", "Packaging", "Logo"],
-                image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=450&fit=crop",
-                likes: 1654,
-                views: 10234,
-                collects: 345,
-                liked: false,
-                collected: false,
-                comments: [],
-                createdAt: "1 week ago"
-            },
-            {
-                id: 11,
-                title: "Weather App Concept",
-                author: "UI Genius",
-                description: "Creative weather app with beautiful animations and intuitive data presentation.",
-                category: "mobile",
-                tags: ["Weather", "Animation", "Mobile", "Concept"],
-                image: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=600&h=700&fit=crop",
-                likes: 2876,
-                views: 17654,
-                collects: 623,
-                liked: false,
-                collected: false,
-                comments: [],
-                createdAt: "2 weeks ago"
-            },
-            {
-                id: 12,
-                title: "Music Streaming Interface",
-                author: "Audio Designer",
-                description: "Modern music streaming platform with focus on discovery, playlists, and social features.",
-                category: "web",
-                tags: ["Music", "Streaming", "Audio", "Social"],
-                image: "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=600&h=400&fit=crop",
-                likes: 1987,
-                views: 12345,
-                collects: 412,
-                liked: false,
-                collected: false,
-                comments: [],
-                createdAt: "2 weeks ago"
-            }
-        ];
-        
+        // 数据存储和状态管理
+        let currentUser = null;
         let currentCategory = 'all';
+        let showMyWorksOnly = false;
         let currentShot = null;
+        let uploadedImageData = null;
+        let selectedTags = [];
+        
+        // 初始化数据
+        function initializeData() {
+            if (!localStorage.getItem('users')) {
+                localStorage.setItem('users', JSON.stringify([]));
+            }
+            
+            if (!localStorage.getItem('shots')) {
+                const defaultShots = [
+                    {
+                        id: 1,
+                        title: "Dashboard Design System",
+                        author: "Sarah Chen",
+                        authorId: null,
+                        description: "A comprehensive dashboard design system featuring dark mode support, responsive layouts, and extensive component library. Perfect for SaaS applications and data-driven products.",
+                        category: "web",
+                        tags: ["Dashboard", "UI Design", "Dark Mode", "SaaS"],
+                        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
+                        likes: 1247,
+                        views: 8934,
+                        collects: 342,
+                        liked: false,
+                        collected: false,
+                        comments: [
+                            { author: "Alex Kim", text: "Amazing attention to detail! The dark mode looks stunning.", rating: 5, authorId: null },
+                            { author: "Jordan Lee", text: "This is exactly what I needed for my project. Great work!", rating: 5, authorId: null }
+                        ],
+                        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 2,
+                        title: "E-commerce Mobile App",
+                        author: "Mike Design",
+                        authorId: null,
+                        description: "Modern e-commerce mobile app design with intuitive navigation, beautiful product cards, and seamless checkout experience.",
+                        category: "mobile",
+                        tags: ["Mobile", "E-commerce", "Shopping", "iOS"],
+                        image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=800&fit=crop",
+                        likes: 892,
+                        views: 5621,
+                        collects: 156,
+                        liked: false,
+                        collected: false,
+                        comments: [
+                            { author: "Emma Wilson", text: "Clean and intuitive design!", rating: 4, authorId: null }
+                        ],
+                        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 3,
+                        title: "Brand Identity - Tech Startup",
+                        author: "Creative Studio",
+                        authorId: null,
+                        description: "Complete brand identity design for a tech startup including logo, color palette, typography, and brand guidelines.",
+                        category: "branding",
+                        tags: ["Branding", "Logo", "Identity", "Startup"],
+                        image: "https://images.unsplash.com/photo-1634942537034-2531766767d1?w=600&h=450&fit=crop",
+                        likes: 2156,
+                        views: 12453,
+                        collects: 678,
+                        liked: false,
+                        collected: false,
+                        comments: [],
+                        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 4,
+                        title: "Travel App Illustration Set",
+                        author: "Illustrator Pro",
+                        authorId: null,
+                        description: "A collection of custom illustrations for a travel booking application. Features various travel scenarios and destinations.",
+                        category: "illustration",
+                        tags: ["Illustration", "Travel", "Vector", "App"],
+                        image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&h=500&fit=crop",
+                        likes: 1563,
+                        views: 9876,
+                        collects: 423,
+                        liked: false,
+                        collected: false,
+                        comments: [
+                            { author: "Tom Baker", text: "Beautiful illustrations!", rating: 5, authorId: null }
+                        ],
+                        createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 5,
+                        title: "Minimal Typography Poster",
+                        author: "Type Explorer",
+                        authorId: null,
+                        description: "Experimental typography poster exploring the relationship between form and meaning through letterforms.",
+                        category: "typography",
+                        tags: ["Typography", "Poster", "Minimal", "Art"],
+                        image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=750&fit=crop",
+                        likes: 987,
+                        views: 6543,
+                        collects: 234,
+                        liked: false,
+                        collected: false,
+                        comments: [],
+                        createdAt: new Date(Date.now() - 96 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 6,
+                        title: "Fitness Tracker Interface",
+                        author: "UX Wizard",
+                        authorId: null,
+                        description: "Health and fitness tracking app with comprehensive data visualization, workout plans, and progress tracking.",
+                        category: "product",
+                        tags: ["Fitness", "Health", "Tracker", "Dashboard"],
+                        image: "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=600&h=400&fit=crop",
+                        likes: 1876,
+                        views: 11234,
+                        collects: 456,
+                        liked: false,
+                        collected: false,
+                        comments: [
+                            { author: "FitLife", text: "Great design for fitness tracking!", rating: 5, authorId: null }
+                        ],
+                        createdAt: new Date(Date.now() - 120 * 60 * 60 * 1000).toISOString()
+                    }
+                ];
+                localStorage.setItem('shots', JSON.stringify(defaultShots));
+            }
+        }
+        
+        // 获取数据
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('users') || '[]');
+        }
+        
+        function getShots() {
+            return JSON.parse(localStorage.getItem('shots') || '[]');
+        }
+        
+        function saveShots(shots) {
+            localStorage.setItem('shots', JSON.stringify(shots));
+        }
+        
+        function saveUsers(users) {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+        
+        // 初始化用户状态
+        function initializeUser() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateNavbarForLoggedInUser();
+            }
+        }
         
         // 格式化数字
         function formatNumber(num) {
@@ -944,204 +1235,372 @@
             return name.split(' ').map(n => n[0]).join('').toUpperCase();
         }
         
-        // 渲染作品列表
-        function renderShots() {
-            const grid = document.getElementById('shotsGrid');
-            grid.innerHTML = '';
+        // 格式化时间
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
             
-            const filteredShots = currentCategory === 'all' 
-                ? shots 
-                : shots.filter(shot => shot.category === currentCategory);
+            const minutes = Math.floor(diff / (1000 * 60));
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             
-            if (filteredShots.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state" style="column-span: all;">
-                        <div class="empty-state-icon">🎨</div>
-                        <h3>No shots found</h3>
-                        <p>Try a different category or search term</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            filteredShots.forEach(shot => {
-                const card = document.createElement('div');
-                card.className = 'shot-card';
-                card.onclick = () => openPreview(shot.id);
-                
-                card.innerHTML = `
-                    <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${Math.random() > 0.5 ? '4/3' : '3/4'}; object-fit: cover;">
-                    <div class="shot-overlay">
-                        <h3 class="shot-title">${shot.title}</h3>
-                        <div class="shot-author">
-                            <div class="author-avatar">${getInitials(shot.author)}</div>
-                            <span class="author-name">${shot.author}</span>
-                        </div>
-                        <div class="shot-stats">
-                            <div class="stat-item">
-                                <span class="stat-icon">❤️</span>
-                                <span>${formatNumber(shot.likes)}</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-icon">👁️</span>
-                                <span>${formatNumber(shot.views)}</span>
-                            </div>
-                        </div>
-                        <div class="shot-tags">
-                            ${shot.tags.slice(0, 3).map(tag => `<span class="shot-tag">${tag}</span>`).join('')}
-                        </div>
-                    </div>
-                `;
-                
-                grid.appendChild(card);
-            });
+            if (minutes < 60) return `${minutes}分钟前`;
+            if (hours < 24) return `${hours}小时前`;
+            if (days < 7) return `${days}天前`;
+            return `${Math.floor(days / 7)}周前`;
         }
         
-        // 打开预览模态框
-        function openPreview(shotId) {
-            currentShot = shots.find(s => s.id === shotId);
-            if (!currentShot) return;
-            
-            document.getElementById('previewImage').src = currentShot.image;
-            document.getElementById('previewAvatar').textContent = getInitials(currentShot.author);
-            document.getElementById('previewAuthorName').textContent = currentShot.author;
-            document.getElementById('previewTime').textContent = currentShot.createdAt;
-            document.getElementById('previewTitle').textContent = currentShot.title;
-            document.getElementById('previewDescription').textContent = currentShot.description;
-            document.getElementById('previewTags').innerHTML = currentShot.tags.map(tag => 
-                `<span class="preview-tag">${tag}</span>`
-            ).join('');
-            document.getElementById('previewLikes').textContent = formatNumber(currentShot.likes);
-            document.getElementById('previewViews').textContent = formatNumber(currentShot.views);
-            document.getElementById('previewCollects').textContent = formatNumber(currentShot.collects);
-            document.getElementById('commentCount').textContent = currentShot.comments.length;
-            
-            // 更新点赞和收藏按钮状态
-            updateActionButtons();
-            
-            // 渲染评论
-            renderComments();
-            
-            document.getElementById('previewModal').style.display = 'block';
+        // 更新导航栏
+        function updateNavbarForLoggedInUser() {
+            const navbarRight = document.getElementById('navbarRight');
+            navbarRight.innerHTML = `
+                <button class="btn btn-primary" onclick="openUploadModal()">📤 上传作品</button>
+                <div class="user-menu">
+                    <div class="user-avatar" onclick="toggleUserMenu()">${getInitials(currentUser.username)}</div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-item">👤 ${currentUser.username}</div>
+                        <div class="user-dropdown-item" onclick="showMyWorks()">📁 我的作品</div>
+                        <div class="user-dropdown-item danger" onclick="handleLogout()">🚪 退出登录</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // 关闭下拉菜单
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-menu')) {
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown) dropdown.classList.remove('show');
+            }
+        });
+        
+        // 模态框操作
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
         
-        // 关闭预览模态框
-        function closePreview() {
-            document.getElementById('previewModal').style.display = 'none';
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
             document.body.style.overflow = 'auto';
-            currentShot = null;
         }
         
-        // 更新操作按钮状态
-        function updateActionButtons() {
-            if (!currentShot) return;
-            
-            const likeBtn = document.getElementById('likeBtn');
-            const collectBtn = document.getElementById('collectBtn');
-            
-            if (currentShot.liked) {
-                likeBtn.classList.add('active');
-                likeBtn.innerHTML = '<span>❤️</span> Liked';
-            } else {
-                likeBtn.classList.remove('active');
-                likeBtn.innerHTML = '<span>❤️</span> Like';
+        function openRegisterModal() {
+            openModal('registerModal');
+        }
+        
+        function openLoginModal() {
+            openModal('loginModal');
+        }
+        
+        function openUploadModal() {
+            if (!currentUser) {
+                showToast('请先登录');
+                openLoginModal();
+                return;
             }
-            
-            if (currentShot.collected) {
-                collectBtn.classList.add('active');
-                collectBtn.innerHTML = '<span>💾</span> Collected';
-            } else {
-                collectBtn.classList.remove('active');
-                collectBtn.innerHTML = '<span>💾</span> Collect';
-            }
+            openModal('uploadModal');
+            resetUploadForm();
         }
         
-        // 点赞
-        function toggleLike() {
-            if (!currentShot) return;
-            
-            currentShot.liked = !currentShot.liked;
-            currentShot.likes += currentShot.liked ? 1 : -1;
-            
-            updateActionButtons();
-            document.getElementById('previewLikes').textContent = formatNumber(currentShot.likes);
-            
-            showToast(currentShot.liked ? 'Added to likes!' : 'Removed from likes');
-            renderShots();
+        function resetUploadForm() {
+            document.getElementById('uploadTitle').value = '';
+            document.getElementById('uploadDescription').value = '';
+            document.getElementById('uploadCategory').value = '';
+            document.getElementById('uploadPreview').classList.remove('show');
+            document.getElementById('uploadPlaceholder').style.display = 'block';
+            document.getElementById('uploadArea').classList.remove('has-image');
+            uploadedImageData = null;
+            selectedTags = [];
+            renderTags();
         }
         
-        // 收藏
-        function toggleCollect() {
-            if (!currentShot) return;
+        // 注册处理
+        function handleRegister(e) {
+            e.preventDefault();
             
-            currentShot.collected = !currentShot.collected;
-            currentShot.collects += currentShot.collected ? 1 : -1;
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
             
-            updateActionButtons();
-            document.getElementById('previewCollects').textContent = formatNumber(currentShot.collects);
+            const users = getUsers();
             
-            showToast(currentShot.collected ? 'Added to collections!' : 'Removed from collections');
-            renderShots();
-        }
-        
-        // 渲染评论
-        function renderComments() {
-            if (!currentShot) return;
-            
-            const commentList = document.getElementById('commentList');
-            
-            if (currentShot.comments.length === 0) {
-                commentList.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No comments yet. Be the first to comment!</p>';
+            if (users.some(u => u.email === email)) {
+                showToast('该邮箱已被注册');
                 return;
             }
             
-            commentList.innerHTML = currentShot.comments.map(comment => `
-                <div class="comment-item">
-                    <div class="comment-header">
-                        <div class="comment-avatar">${getInitials(comment.author)}</div>
-                        <span class="comment-author">${comment.author}</span>
-                        <span class="comment-rating">${'★'.repeat(comment.rating || 4)}${'☆'.repeat(5 - (comment.rating || 4))}</span>
-                    </div>
-                    <p class="comment-text">${comment.text}</p>
-                </div>
-            `).join('');
+            const newUser = {
+                id: Date.now(),
+                username,
+                email,
+                password,
+                createdAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            saveUsers(users);
+            
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            
+            closeModal('registerModal');
+            updateNavbarForLoggedInUser();
+            showToast('注册成功！欢迎加入！');
         }
         
-        // 添加评论
-        function addComment() {
-            if (!currentShot) return;
+        // 登录处理
+        function handleLogin(e) {
+            e.preventDefault();
             
-            const input = document.getElementById('commentInput');
-            const text = input.value.trim();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
             
-            if (!text) {
-                showToast('Please enter a comment');
+            const users = getUsers();
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (!user) {
+                showToast('邮箱或密码错误');
                 return;
             }
             
-            currentShot.comments.push({
-                author: "Guest User",
-                text: text,
-                rating: 4
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            closeModal('loginModal');
+            updateNavbarForLoggedInUser();
+            showToast('登录成功！');
+        }
+        
+        // 登出
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            
+            const navbarRight = document.getElementById('navbarRight');
+            navbarRight.innerHTML = `
+                <button class="btn btn-outline" onclick="openLoginModal()">登录</button>
+                <button class="btn btn-primary" onclick="openRegisterModal()">注册</button>
+            `;
+            
+            document.getElementById('userDropdown').classList.remove('show');
+            showMainPage();
+            showToast('已退出登录');
+        }
+        
+        // 图片上传处理
+        function handleImageSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageData = e.target.result;
+                    document.getElementById('uploadPreview').src = e.target.result;
+                    document.getElementById('uploadPreview').classList.add('show');
+                    document.getElementById('uploadPlaceholder').style.display = 'none';
+                    document.getElementById('uploadArea').classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // 标签处理
+        function handleTagInput(e) {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                e.preventDefault();
+                const tag = e.target.value.trim();
+                if (!selectedTags.includes(tag) && selectedTags.length < 10) {
+                    selectedTags.push(tag);
+                    renderTags();
+                }
+                e.target.value = '';
+            }
+        }
+        
+        function removeTag(tag) {
+            selectedTags = selectedTags.filter(t => t !== tag);
+            renderTags();
+        }
+        
+        function renderTags() {
+            const container = document.getElementById('tagsContainer');
+            const tagInput = document.getElementById('tagInput');
+            container.innerHTML = '';
+            
+            selectedTags.forEach(tag => {
+                const tagChip = document.createElement('div');
+                tagChip.className = 'tag-chip';
+                tagChip.innerHTML = `
+                    ${tag}
+                    <span onclick="removeTag('${tag}')">&times;</span>
+                `;
+                container.appendChild(tagChip);
             });
             
-            input.value = '';
-            document.getElementById('commentCount').textContent = currentShot.comments.length;
-            renderComments();
+            container.appendChild(tagInput);
+        }
+        
+        // 上传作品
+        function handleUpload(e) {
+            e.preventDefault();
             
-            showToast('Comment added successfully!');
+            if (!uploadedImageData) {
+                showToast('请上传作品图片');
+                return;
+            }
+            
+            const title = document.getElementById('uploadTitle').value.trim();
+            const description = document.getElementById('uploadDescription').value.trim();
+            const category = document.getElementById('uploadCategory').value;
+            
+            if (!category) {
+                showToast('请选择分类');
+                return;
+            }
+            
+            const shots = getShots();
+            const newShot = {
+                id: Date.now(),
+                title,
+                author: currentUser.username,
+                authorId: currentUser.id,
+                description,
+                category,
+                tags: [...selectedTags],
+                image: uploadedImageData,
+                likes: 0,
+                views: 0,
+                collects: 0,
+                liked: false,
+                collected: false,
+                comments: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            shots.unshift(newShot);
+            saveShots(shots);
+            
+            closeModal('uploadModal');
+            showToast('作品发布成功！');
+            renderShots();
+        }
+        
+        // 显示主页面
+        function showMainPage() {
+            showMyWorksOnly = false;
+            document.getElementById('categoryBar').style.display = 'flex';
+            document.getElementById('portfolioTabs').style.display = 'none';
+            document.querySelectorAll('.nav-link').forEach((link, index) => {
+                if (index === 0) link.classList.add('active');
+                else link.classList.remove('active');
+            });
+            document.querySelectorAll('.category-tag')[0].classList.add('active');
+            filterByCategory('all');
+        }
+        
+        // 显示我的作品
+        function showMyWorks() {
+            if (!currentUser) {
+                showToast('请先登录');
+                openLoginModal();
+                return;
+            }
+            
+            showMyWorksOnly = true;
+            document.getElementById('categoryBar').style.display = 'none';
+            document.getElementById('portfolioTabs').style.display = 'flex';
+            document.querySelectorAll('.nav-link').forEach((link, index) => {
+                if (index === 1) link.classList.add('active');
+                else link.classList.remove('active');
+            });
+            document.querySelectorAll('.portfolio-tab').forEach((tab, index) => {
+                if (index === 1) tab.classList.add('active');
+                else tab.classList.remove('active');
+            });
+            renderShots();
+        }
+        
+        // 渲染作品列表
+        function renderShots() {
+            const grid = document.getElementById('shotsGrid');
+            let shots = getShots();
+            
+            if (showMyWorksOnly && currentUser) {
+                shots = shots.filter(shot => shot.authorId === currentUser.id);
+                
+                if (shots.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="column-span: all;">
+                            <div class="empty-state-icon">📁</div>
+                            <h3>你还没有上传作品</h3>
+                            <p>点击上方按钮分享你的第一个作品！</p>
+                            <button class="btn btn-primary" onclick="openUploadModal()" style="margin-top: 20px;">上传作品</button>
+                        </div>
+                    `;
+                    return;
+                }
+            } else {
+                if (currentCategory !== 'all') {
+                    shots = shots.filter(shot => shot.category === currentCategory);
+                }
+            }
+            
+            if (shots.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="column-span: all;">
+                        <div class="empty-state-icon">🎨</div>
+                        <h3>暂无作品</h3>
+                        <p>看看其他分类或稍后再来</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = shots.map(shot => {
+                const aspectRatio = Math.random() > 0.5 ? '4/3' : '3/4';
+                return `
+                    <div class="shot-card" onclick="openPreview(${shot.id})">
+                        <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${aspectRatio}; object-fit: cover;">
+                        <div class="shot-overlay">
+                            <h3 class="shot-title">${shot.title}</h3>
+                            <div class="shot-author">
+                                <div class="author-avatar">${getInitials(shot.author)}</div>
+                                <span class="author-name">${shot.author}</span>
+                            </div>
+                            <div class="shot-stats">
+                                <div class="stat-item">
+                                    <span class="stat-icon">❤️</span>
+                                    <span>${formatNumber(shot.likes)}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-icon">👁️</span>
+                                    <span>${formatNumber(shot.views)}</span>
+                                </div>
+                            </div>
+                            <div class="shot-tags">
+                                ${shot.tags.slice(0, 3).map(tag => `<span class="shot-tag">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
         
         // 分类筛选
         function filterByCategory(category) {
             currentCategory = category;
             
-            // 更新标签状态
             document.querySelectorAll('.category-tag').forEach(tag => {
                 tag.classList.remove('active');
-                if (tag.textContent.toLowerCase().includes(category) || 
-                    (category === 'all' && tag.textContent.includes('All'))) {
+                if (category === 'all' && tag.textContent.includes('全部')) {
+                    tag.classList.add('active');
+                } else if (tag.textContent.toLowerCase().includes(category)) {
                     tag.classList.add('active');
                 }
             });
@@ -1153,39 +1612,39 @@
         function handleSearch(event) {
             if (event.key === 'Enter') {
                 const query = event.target.value.toLowerCase();
+                const shots = getShots();
                 
                 if (query === '') {
                     currentCategory = 'all';
-                } else {
-                    // 搜索时暂时忽略分类筛选
-                    const filteredShots = shots.filter(shot => 
-                        shot.title.toLowerCase().includes(query) ||
-                        shot.author.toLowerCase().includes(query) ||
-                        shot.tags.some(tag => tag.toLowerCase().includes(query)) ||
-                        shot.description.toLowerCase().includes(query)
-                    );
-                    
-                    const grid = document.getElementById('shotsGrid');
-                    grid.innerHTML = '';
-                    
-                    if (filteredShots.length === 0) {
-                        grid.innerHTML = `
-                            <div class="empty-state" style="column-span: all;">
-                                <div class="empty-state-icon">🔍</div>
-                                <h3>No results found</h3>
-                                <p>Try different keywords</p>
-                            </div>
-                        `;
-                        return;
-                    }
-                    
-                    filteredShots.forEach(shot => {
-                        const card = document.createElement('div');
-                        card.className = 'shot-card';
-                        card.onclick = () => openPreview(shot.id);
-                        
-                        card.innerHTML = `
-                            <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${Math.random() > 0.5 ? '4/3' : '3/4'}; object-fit: cover;">
+                    renderShots();
+                    return;
+                }
+                
+                const filteredShots = shots.filter(shot => 
+                    shot.title.toLowerCase().includes(query) ||
+                    shot.author.toLowerCase().includes(query) ||
+                    shot.tags.some(tag => tag.toLowerCase().includes(query)) ||
+                    shot.description.toLowerCase().includes(query)
+                );
+                
+                const grid = document.getElementById('shotsGrid');
+                
+                if (filteredShots.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="column-span: all;">
+                            <div class="empty-state-icon">🔍</div>
+                            <h3>没有找到相关作品</h3>
+                            <p>试试其他关键词</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = filteredShots.map(shot => {
+                    const aspectRatio = Math.random() > 0.5 ? '4/3' : '3/4';
+                    return `
+                        <div class="shot-card" onclick="openPreview(${shot.id})">
+                            <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${aspectRatio}; object-fit: cover;">
                             <div class="shot-overlay">
                                 <h3 class="shot-title">${shot.title}</h3>
                                 <div class="shot-author">
@@ -1202,19 +1661,169 @@
                                         <span>${formatNumber(shot.views)}</span>
                                     </div>
                                 </div>
-                                <div class="shot-tags">
-                                    ${shot.tags.slice(0, 3).map(tag => `<span class="shot-tag">${tag}</span>`).join('')}
-                                </div>
                             </div>
-                        `;
-                        
-                        grid.appendChild(card);
-                    });
-                }
+                        </div>
+                    `;
+                }).join('');
             }
         }
         
-        // 显示 Toast 提示
+        // 打开预览
+        function openPreview(shotId) {
+            const shots = getShots();
+            const shot = shots.find(s => s.id === shotId);
+            if (!shot) return;
+            
+            shot.views++;
+            saveShots(shots);
+            
+            currentShot = shot;
+            
+            document.getElementById('previewImage').src = shot.image;
+            document.getElementById('previewAvatar').textContent = getInitials(shot.author);
+            document.getElementById('previewAuthorName').textContent = shot.author;
+            document.getElementById('previewTime').textContent = formatTime(shot.createdAt);
+            document.getElementById('previewTitle').textContent = shot.title;
+            document.getElementById('previewDescription').textContent = shot.description;
+            document.getElementById('previewTags').innerHTML = shot.tags.map(tag => `<span class="preview-tag">${tag}</span>`).join('');
+            document.getElementById('previewLikes').textContent = formatNumber(shot.likes);
+            document.getElementById('previewViews').textContent = formatNumber(shot.views);
+            document.getElementById('previewCollects').textContent = formatNumber(shot.collects);
+            document.getElementById('commentCount').textContent = shot.comments.length;
+            
+            updateActionButtons();
+            renderComments();
+            
+            document.getElementById('previewModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentShot = null;
+        }
+        
+        function updateActionButtons() {
+            if (!currentShot) return;
+            
+            const likeBtn = document.getElementById('likeBtn');
+            const collectBtn = document.getElementById('collectBtn');
+            
+            if (currentShot.liked) {
+                likeBtn.classList.add('active');
+                likeBtn.innerHTML = '<span>❤️</span> 已点赞';
+            } else {
+                likeBtn.classList.remove('active');
+                likeBtn.innerHTML = '<span>❤️</span> 点赞';
+            }
+            
+            if (currentShot.collected) {
+                collectBtn.classList.add('active');
+                collectBtn.innerHTML = '<span>💾</span> 已收藏';
+            } else {
+                collectBtn.classList.remove('active');
+                collectBtn.innerHTML = '<span>💾</span> 收藏';
+            }
+        }
+        
+        function toggleLike() {
+            if (!currentShot) return;
+            
+            const shots = getShots();
+            const shot = shots.find(s => s.id === currentShot.id);
+            if (!shot) return;
+            
+            shot.liked = !shot.liked;
+            shot.likes += shot.liked ? 1 : -1;
+            currentShot = shot;
+            
+            saveShots(shots);
+            updateActionButtons();
+            document.getElementById('previewLikes').textContent = formatNumber(shot.likes);
+            
+            showToast(shot.liked ? '已点赞！' : '取消点赞');
+            renderShots();
+        }
+        
+        function toggleCollect() {
+            if (!currentShot) return;
+            
+            const shots = getShots();
+            const shot = shots.find(s => s.id === currentShot.id);
+            if (!shot) return;
+            
+            shot.collected = !shot.collected;
+            shot.collects += shot.collected ? 1 : -1;
+            currentShot = shot;
+            
+            saveShots(shots);
+            updateActionButtons();
+            document.getElementById('previewCollects').textContent = formatNumber(shot.collects);
+            
+            showToast(shot.collected ? '已收藏！' : '取消收藏');
+            renderShots();
+        }
+        
+        function renderComments() {
+            if (!currentShot) return;
+            
+            const commentList = document.getElementById('commentList');
+            
+            if (currentShot.comments.length === 0) {
+                commentList.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">暂无评论</p>';
+                return;
+            }
+            
+            commentList.innerHTML = currentShot.comments.map(comment => {
+                const stars = '★'.repeat(comment.rating || 4) + '☆'.repeat(5 - (comment.rating || 4));
+                return `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-avatar">${getInitials(comment.author)}</div>
+                            <span class="comment-author">${comment.author}</span>
+                            <span class="comment-rating">${stars}</span>
+                        </div>
+                        <p class="comment-text">${comment.text}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function addComment() {
+            if (!currentShot) return;
+            
+            const input = document.getElementById('detailCommentInput');
+            const text = input.value.trim();
+            
+            if (!text) {
+                showToast('请输入评论内容');
+                return;
+            }
+            
+            const shots = getShots();
+            const shot = shots.find(s => s.id === currentShot.id);
+            if (!shot) return;
+            
+            const commentData = {
+                author: currentUser ? currentUser.username : '匿名用户',
+                authorId: currentUser ? currentUser.id : null,
+                text,
+                rating: 4
+            };
+            
+            shot.comments.push(commentData);
+            currentShot = shot;
+            saveShots(shots);
+            
+            input.value = '';
+            document.getElementById('commentCount').textContent = shot.comments.length;
+            renderComments();
+            renderShots();
+            
+            showToast('评论发布成功！');
+        }
+        
         function showToast(message) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -1225,23 +1834,14 @@
             }, 3000);
         }
         
-        // 点击模态框外部关闭
-        window.onclick = function(event) {
-            const modal = document.getElementById('previewModal');
-            if (event.target === modal) {
-                closePreview();
-            }
+        // 页面初始化
+        function initializeApp() {
+            initializeData();
+            initializeUser();
+            renderShots();
         }
         
-        // ESC 键关闭模态框
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closePreview();
-            }
-        });
-        
-        // 初始化渲染
-        renderShots();
+        initializeApp();
     </script>
 </body>
 </html>
