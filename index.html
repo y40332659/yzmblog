@@ -1392,19 +1392,72 @@
             showToast('已退出登录');
         }
         
+        // 使用 Imgur API 上传图片（支持大图）
+        async function uploadToImgur(file) {
+            const CLIENT_ID = 'YOUR_IMGUR_CLIENT_ID'; // 需要替换为实际的 Client ID
+            
+            // 如果没有配置 Imgur，回退到本地存储
+            if (!CLIENT_ID || CLIENT_ID === 'YOUR_IMGUR_CLIENT_ID') {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        resolve(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                const response = await fetch('https://api.imgur.com/3/image', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Client-ID ${CLIENT_ID}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    return data.data.link;
+                } else {
+                    throw new Error(data.data.error);
+                }
+            } catch (error) {
+                console.error('Imgur 上传失败，使用本地存储:', error);
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        resolve(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+        
         // 图片上传处理
-        function handleImageSelect(e) {
+        async function handleImageSelect(e) {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadedImageData = e.target.result;
-                    document.getElementById('uploadPreview').src = e.target.result;
+                showToast('正在上传图片...');
+                
+                try {
+                    const imageUrl = await uploadToImgur(file);
+                    uploadedImageData = imageUrl;
+                    document.getElementById('uploadPreview').src = imageUrl;
                     document.getElementById('uploadPreview').classList.add('show');
                     document.getElementById('uploadPlaceholder').style.display = 'none';
                     document.getElementById('uploadArea').classList.add('has-image');
-                };
-                reader.readAsDataURL(file);
+                    
+                    const fileSize = (file.size / 1024).toFixed(1);
+                    console.log(`图片上传完成，大小: ${fileSize}KB`);
+                    showToast('图片上传成功！');
+                } catch (error) {
+                    console.error('图片上传失败:', error);
+                    showToast('图片上传失败，请重试');
+                }
             }
         }
         
