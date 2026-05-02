@@ -649,21 +649,31 @@
     <div id="toast" class="toast"></div>
     
     <script>
-        // 数据操作函数（从 localStorage 读取，与 index.html 共用）
-        function getUsers() {
-            return JSON.parse(localStorage.getItem('users') || '[]');
+        const API_BASE = '/api';
+        
+        // API 函数
+        async function getUsers() {
+            const response = await fetch(`${API_BASE}/auth?all=true`);
+            return response.json();
         }
         
-        function getShots() {
-            return JSON.parse(localStorage.getItem('shots') || '[]');
+        async function getShots() {
+            const response = await fetch(`${API_BASE}/shots`);
+            return response.json();
         }
         
-        function saveUsers(users) {
-            localStorage.setItem('users', JSON.stringify(users));
+        async function deleteUserFromAPI(userId) {
+            const response = await fetch(`${API_BASE}/auth?id=${userId}`, {
+                method: 'DELETE'
+            });
+            return response.json();
         }
         
-        function saveShots(shots) {
-            localStorage.setItem('shots', JSON.stringify(shots));
+        async function deleteShotFromAPI(shotId) {
+            const response = await fetch(`${API_BASE}/shots?id=${shotId}`, {
+                method: 'DELETE'
+            });
+            return response.json();
         }
         
         // 获取名字首字母
@@ -750,13 +760,13 @@
         }
         
         // 渲染数据概览
-        function renderDashboard() {
-            const users = getUsers();
-            const shots = getShots();
+        async function renderDashboard() {
+            const users = await getUsers();
+            const shots = await getShots();
             
             let totalComments = 0;
             shots.forEach(shot => {
-                totalComments += shot.comments.length;
+                totalComments += (shot.comments || []).length;
             });
             
             document.getElementById('statUsers').textContent = users.length;
@@ -768,21 +778,23 @@
         }
         
         // 渲染用户表格
-        function renderUsersTable() {
-            const users = getUsers();
+        async function renderUsersTable() {
+            const users = await getUsers();
             renderUsersTableData(users, 'usersTable');
         }
         
-        function renderUsersTableData(users, tableId) {
+        async function renderUsersTableData(users, tableId) {
+            const shots = await getShots();
             const tbody = document.getElementById(tableId);
             
-            if (users.length === 0) {
+            if (!users || users.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">暂无用户</td></tr>';
                 return;
             }
             
             tbody.innerHTML = users.map(user => {
-                const userWorks = getShots().filter(shot => shot.authorId === user.id);
+                const userId = user.id || user._id;
+                const userWorks = shots.filter(shot => (shot.authorId || '').toString() === userId.toString());
                 return `
                     <tr>
                         <td><div class="admin-avatar-small">${getInitials(user.username)}</div></td>
@@ -791,8 +803,8 @@
                         <td>${formatTime(user.createdAt)}</td>
                         <td>${userWorks.length}</td>
                         <td>
-                            <button class="action-btn view" onclick="viewUserProfile(${user.id})">查看</button>
-                            <button class="action-btn delete" onclick="deleteUser(${user.id})">删除</button>
+                            <button class="action-btn view" onclick="viewUserProfile('${userId}')">查看</button>
+                            <button class="action-btn delete" onclick="deleteUser('${userId}')">删除</button>
                         </td>
                     </tr>
                 `;
@@ -800,9 +812,9 @@
         }
         
         // 搜索用户
-        function searchUsers() {
+        async function searchUsers() {
             const query = document.getElementById('userSearchInput').value.toLowerCase();
-            const users = getUsers();
+            const users = await getUsers();
             
             const filteredUsers = users.filter(user => 
                 user.username.toLowerCase().includes(query) ||
@@ -813,16 +825,19 @@
         }
         
         // 查看用户资料
-        function viewUserProfile(userId) {
-            const user = getUsers().find(u => u.id === userId);
+        async function viewUserProfile(userId) {
+            const users = await getUsers();
+            const shots = await getShots();
+            
+            const user = users.find(u => (u.id || u._id).toString() === userId.toString());
             if (!user) return;
             
-            const userWorks = getShots().filter(shot => shot.authorId === userId);
+            const userWorks = shots.filter(shot => (shot.authorId || '').toString() === userId.toString());
             
             document.getElementById('profileAvatar').textContent = getInitials(user.username);
             document.getElementById('profileName').textContent = user.username;
             document.getElementById('profileEmail').textContent = user.email;
-            document.getElementById('profileId').textContent = user.id;
+            document.getElementById('profileId').textContent = userId;
             document.getElementById('profileCreated').textContent = new Date(user.createdAt).toLocaleString();
             document.getElementById('profileWorksCount').textContent = userWorks.length;
             
@@ -830,63 +845,81 @@
             if (userWorks.length === 0) {
                 worksList.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">该用户暂无作品</p>';
             } else {
-                worksList.innerHTML = userWorks.map(work => `
-                    <div class="user-work-item">
-                        <img class="user-work-image" src="${work.image}" alt="${work.title}">
-                        <div class="user-work-info">
-                            <div class="user-work-title">${work.title}</div>
-                            <div class="user-work-stats">❤️ ${work.likes} | 👁️ ${work.views} | 💬 ${work.comments.length}</div>
+                worksList.innerHTML = userWorks.map(work => {
+                    const displayImage = Array.isArray(work.images) && work.images.length > 0 
+                        ? work.images[0] 
+                        : work.image;
+                    return `
+                        <div class="user-work-item">
+                            <img class="user-work-image" src="${displayImage}" alt="${work.title}">
+                            <div class="user-work-info">
+                                <div class="user-work-title">${work.title}</div>
+                                <div class="user-work-stats">❤️ ${work.likes} | 👁️ ${work.views} | 💬 ${(work.comments || []).length}</div>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
             
             document.getElementById('userProfileModal').style.display = 'block';
         }
         
         // 删除用户
-        function deleteUser(userId) {
+        async function deleteUser(userId) {
             if (!confirm('确定要删除该用户吗？此操作不可撤销！')) return;
             
-            let users = getUsers();
-            users = users.filter(u => u.id !== userId);
-            saveUsers(users);
-            
-            let shots = getShots();
-            shots = shots.filter(s => s.authorId !== userId);
-            saveShots(shots);
-            
-            showToast('用户删除成功！');
-            renderDashboard();
-            renderUsersTable();
+            try {
+                // 先删除该用户的所有作品
+                const shots = await getShots();
+                const userShots = shots.filter(shot => (shot.authorId || '').toString() === userId.toString());
+                
+                for (const shot of userShots) {
+                    const shotId = shot.id || shot._id;
+                    await deleteShotFromAPI(shotId);
+                }
+                
+                // 再删除用户
+                await deleteUserFromAPI(userId);
+                
+                showToast('用户删除成功！');
+                renderDashboard();
+                renderUsersTable();
+            } catch (error) {
+                console.error('删除失败:', error);
+                showToast('删除失败，请重试');
+            }
         }
         
         // 渲染作品表格
-        function renderWorksTable() {
-            const shots = getShots();
+        async function renderWorksTable() {
+            const shots = await getShots();
             renderWorksTableData(shots, 'worksTable');
         }
         
         function renderWorksTableData(shots, tableId) {
             const tbody = document.getElementById(tableId);
             
-            if (shots.length === 0) {
+            if (!shots || shots.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #999;">暂无作品</td></tr>';
                 return;
             }
             
             tbody.innerHTML = shots.map(shot => {
+                const shotId = shot.id || shot._id;
+                const displayImage = Array.isArray(shot.images) && shot.images.length > 0 
+                    ? shot.images[0] 
+                    : shot.image;
                 return `
                     <tr>
-                        <td><img src="${shot.image}" alt="${shot.title}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;"></td>
+                        <td><img src="${displayImage}" alt="${shot.title}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;"></td>
                         <td>${shot.title}</td>
                         <td>${shot.author}</td>
                         <td>${getCategoryName(shot.category)}</td>
                         <td>${shot.likes} / ${shot.views}</td>
-                        <td>${shot.comments.length}</td>
+                        <td>${(shot.comments || []).length}</td>
                         <td>${formatTime(shot.createdAt)}</td>
                         <td>
-                            <button class="action-btn delete" onclick="deleteWork(${shot.id})">删除</button>
+                            <button class="action-btn delete" onclick="deleteWork('${shotId}')">删除</button>
                         </td>
                     </tr>
                 `;
@@ -894,29 +927,31 @@
         }
         
         // 搜索作品
-        function searchWorks() {
+        async function searchWorks() {
             const query = document.getElementById('workSearchInput').value.toLowerCase();
-            const shots = getShots();
+            const shots = await getShots();
             
             const filteredShots = shots.filter(shot => 
                 shot.title.toLowerCase().includes(query) ||
-                shot.author.toLowerCase().includes(query)
+                (shot.author || '').toLowerCase().includes(query)
             );
             
             renderWorksTableData(filteredShots, 'worksTable');
         }
         
         // 删除作品
-        function deleteWork(workId) {
+        async function deleteWork(workId) {
             if (!confirm('确定要删除该作品吗？此操作不可撤销！')) return;
             
-            let shots = getShots();
-            shots = shots.filter(s => s.id !== workId);
-            saveShots(shots);
-            
-            showToast('作品删除成功！');
-            renderDashboard();
-            renderWorksTable();
+            try {
+                await deleteShotFromAPI(workId);
+                showToast('作品删除成功！');
+                renderDashboard();
+                renderWorksTable();
+            } catch (error) {
+                console.error('删除失败:', error);
+                showToast('删除失败，请重试');
+            }
         }
         
         // 关闭模态框

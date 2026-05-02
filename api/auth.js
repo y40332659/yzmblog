@@ -11,7 +11,29 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-let User;
+const shotSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  image: { type: String },
+  images: { type: [String], default: [] },
+  category: { type: String, default: 'web' },
+  tags: { type: [String], default: [] },
+  author: { type: String, required: true },
+  authorId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  likes: { type: Number, default: 0 },
+  likedBy: { type: [mongoose.Schema.Types.ObjectId], default: [] },
+  views: { type: Number, default: 0 },
+  comments: { type: [{
+    userId: mongoose.Schema.Types.ObjectId,
+    userName: String,
+    content: String,
+    rating: Number,
+    createdAt: { type: Date, default: Date.now }
+  }], default: [] },
+  createdAt: { type: Date, default: Date.now }
+});
+
+let User, Shot;
 let cachedDb = null;
 
 async function connectToDatabase() {
@@ -27,6 +49,7 @@ async function connectToDatabase() {
     const client = await mongoose.connect(MONGODB_URI);
     cachedDb = client.connection;
     User = mongoose.model('User', userSchema);
+    Shot = mongoose.model('Shot', shotSchema);
     console.log('✅ 数据库连接成功');
     return cachedDb;
   } catch (error) {
@@ -161,6 +184,9 @@ module.exports = async (req, res) => {
         
       case 'DELETE':
         const { id } = req.query;
+        // 先删除该用户的所有作品
+        await Shot.deleteMany({ authorId: id });
+        // 再删除用户
         await User.findByIdAndDelete(id);
         res.json({ message: '删除成功' });
         break;
