@@ -1321,66 +1321,65 @@
         }
         
         // 注册处理
-        function handleRegister(e) {
+        async function handleRegister(e) {
             e.preventDefault();
             
             const username = document.getElementById('registerUsername').value.trim();
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
             
-            const users = getUsers();
-            
-            if (users.some(u => u.email === email)) {
-                showToast('该邮箱已被注册');
-                return;
+            try {
+                const response = await api.register({ username, email, password });
+                
+                if (response.message === '注册成功') {
+                    currentUser = response.user;
+                    localStorage.setItem('currentUser', JSON.stringify(response.user));
+                    setToken(response.token);
+                    
+                    closeModal('registerModal');
+                    updateNavbarForLoggedInUser();
+                    showToast('注册成功！欢迎加入！');
+                } else {
+                    showToast(response.message || '注册失败');
+                }
+            } catch (error) {
+                console.error('注册失败:', error);
+                showToast('注册失败，请稍后重试');
             }
-            
-            const newUser = {
-                id: Date.now(),
-                username,
-                email,
-                password,
-                createdAt: new Date().toISOString()
-            };
-            
-            users.push(newUser);
-            saveUsers(users);
-            
-            currentUser = newUser;
-            localStorage.setItem('currentUser', JSON.stringify(newUser));
-            
-            closeModal('registerModal');
-            updateNavbarForLoggedInUser();
-            showToast('注册成功！欢迎加入！');
         }
         
         // 登录处理
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             
-            const users = getUsers();
-            const user = users.find(u => u.email === email && u.password === password);
-            
-            if (!user) {
-                showToast('邮箱或密码错误');
-                return;
+            try {
+                const response = await api.login({ email, password });
+                
+                if (response.message === '登录成功') {
+                    currentUser = response.user;
+                    localStorage.setItem('currentUser', JSON.stringify(response.user));
+                    setToken(response.token);
+                    
+                    closeModal('loginModal');
+                    updateNavbarForLoggedInUser();
+                    showToast('登录成功！');
+                } else {
+                    showToast(response.message || '登录失败');
+                }
+            } catch (error) {
+                console.error('登录失败:', error);
+                showToast('登录失败，请稍后重试');
             }
-            
-            currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            
-            closeModal('loginModal');
-            updateNavbarForLoggedInUser();
-            showToast('登录成功！');
         }
         
         // 登出
         function handleLogout() {
             currentUser = null;
             localStorage.removeItem('currentUser');
+            removeToken();
             
             const navbarRight = document.getElementById('navbarRight');
             navbarRight.innerHTML = `
@@ -1446,7 +1445,7 @@
         }
         
         // 上传作品
-        function handleUpload(e) {
+        async function handleUpload(e) {
             e.preventDefault();
             
             if (!uploadedImageData) {
@@ -1463,31 +1462,28 @@
                 return;
             }
             
-            const shots = getShots();
-            const newShot = {
-                id: Date.now(),
-                title,
-                author: currentUser.username,
-                authorId: currentUser.id,
-                description,
-                category,
-                tags: [...selectedTags],
-                image: uploadedImageData,
-                likes: 0,
-                views: 0,
-                collects: 0,
-                liked: false,
-                collected: false,
-                comments: [],
-                createdAt: new Date().toISOString()
-            };
-            
-            shots.unshift(newShot);
-            saveShots(shots);
-            
-            closeModal('uploadModal');
-            showToast('作品发布成功！');
-            renderShots();
+            try {
+                const token = getToken();
+                const response = await api.createShot({
+                    title,
+                    description,
+                    image: uploadedImageData,
+                    category,
+                    tags: [...selectedTags]
+                }, token);
+                
+                if (response.message === '作品创建成功') {
+                    closeModal('uploadModal');
+                    resetUploadForm();
+                    showToast('作品发布成功！');
+                    await loadShotsFromAPI();
+                } else {
+                    showToast(response.message || '发布失败');
+                }
+            } catch (error) {
+                console.error('发布失败:', error);
+                showToast('发布失败，请稍后重试');
+            }
         }
         
         // 显示主页面
@@ -1833,11 +1829,110 @@
             }, 3000);
         }
         
+        // API 服务层
+        const API_BASE = '/api';
+        
+        const api = {
+            register: async (userData) => {
+                const response = await fetch(`${API_BASE}/auth`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'register', ...userData })
+                });
+                return response.json();
+            },
+            
+            login: async (credentials) => {
+                const response = await fetch(`${API_BASE}/auth`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', ...credentials })
+                });
+                return response.json();
+            },
+            
+            getAllShots: async () => {
+                const response = await fetch(`${API_BASE}/shots`);
+                return response.json();
+            },
+            
+            getShot: async (shotId) => {
+                const response = await fetch(`${API_BASE}/shots?id=${shotId}`);
+                return response.json();
+            },
+            
+            createShot: async (shotData, token) => {
+                const response = await fetch(`${API_BASE}/shots`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(shotData)
+                });
+                return response.json();
+            },
+            
+            likeShot: async (shotId, token) => {
+                const response = await fetch(`${API_BASE}/shots?id=${shotId}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ action: 'like' })
+                });
+                return response.json();
+            },
+            
+            addComment: async (shotId, commentData, token) => {
+                const response = await fetch(`${API_BASE}/shots?id=${shotId}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ action: 'comment', ...commentData })
+                });
+                return response.json();
+            },
+            
+            getUserShots: async (userId) => {
+                const response = await fetch(`${API_BASE}/shots?userId=${userId}`);
+                return response.json();
+            }
+        };
+        
+        function setToken(token) {
+            localStorage.setItem('token', token);
+        }
+        
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+        
+        function removeToken() {
+            localStorage.removeItem('token');
+        }
+        
+        // 从 API 加载作品
+        async function loadShotsFromAPI() {
+            try {
+                const response = await api.getAllShots();
+                if (Array.isArray(response)) {
+                    saveShots(response);
+                    renderShots();
+                }
+            } catch (error) {
+                console.error('加载作品失败:', error);
+            }
+        }
+        
         // 页面初始化
-        function initializeApp() {
+        async function initializeApp() {
             initializeData();
             initializeUser();
-            renderShots();
+            await loadShotsFromAPI();
         }
         
         initializeApp();
