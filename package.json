@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "作品点评平台",
   "main": "index.html",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "dev": "vercel dev",
-    "build": "echo 'Build completed'",
+    "build": "npm install",
     "start": "vercel dev"
   },
   "dependencies": {
