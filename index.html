@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dribbble - Show and Tell for Designers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0d0d0d;
+            color: #fff;
+            line-height: 1.6;
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            background-color: #111;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #222;
+        }
+        
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ea4c89;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .nav-link {
+            color: #999;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: #fff;
+        }
+        
+        .navbar-center {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 40px;
+        }
+        
+        .search-box {
+            width: 100%;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: border-color 0.2s;
+        }
+        
+        .search-box:focus-within {
+            border-color: #ea4c89;
+        }
+        
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .search-box input::placeholder {
+            color: #666;
+        }
+        
+        .search-icon {
+            color: #666;
+        }
+        
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #333;
+            color: #fff;
+        }
+        
+        .btn-outline:hover {
+            border-color: #ea4c89;
+            color: #ea4c89;
+        }
+        
+        .btn-primary {
+            background-color: #ea4c89;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e8377a;
+        }
+        
+        /* 分类标签栏 */
+        .category-bar {
+            background-color: #111;
+            padding: 12px 40px;
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            border-bottom: 1px solid #222;
+        }
+        
+        .category-tag {
+            padding: 8px 16px;
+            background-color: #1a1a1a;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        
+        .category-tag:hover {
+            color: #fff;
+            background-color: #222;
+        }
+        
+        .category-tag.active {
+            background-color: #ea4c89;
+            color: #fff;
+        }
+        
+        /* 瀑布流布局 */
+        .masonry-grid {
+            padding: 40px;
+            columns: 4;
+            column-gap: 24px;
+        }
+        
+        @media (max-width: 1400px) {
+            .masonry-grid {
+                columns: 3;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .masonry-grid {
+                columns: 2;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .masonry-grid {
+                columns: 1;
+            }
+        }
+        
+        /* 作品卡片 */
+        .shot-card {
+            break-inside: avoid;
+            margin-bottom: 24px;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .shot-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .shot-image {
+            width: 100%;
+            display: block;
+        }
+        
+        .shot-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+        }
+        
+        .shot-card:hover .shot-overlay {
+            opacity: 1;
+        }
+        
+        .shot-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        
+        .shot-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .author-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .author-name {
+            font-size: 13px;
+            color: #ccc;
+        }
+        
+        .shot-stats {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #ccc;
+        }
+        
+        .stat-icon {
+            font-size: 16px;
+        }
+        
+        .shot-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .shot-tag {
+            padding: 4px 10px;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            font-size: 11px;
+            color: #ccc;
+        }
+        
+        /* 作品预览模态框 */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .preview-content {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+        }
+        
+        @media (max-width: 1024px) {
+            .preview-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .preview-image-container {
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .preview-info {
+            color: #fff;
+        }
+        
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .preview-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .preview-author-info h2 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .preview-author-info span {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .preview-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .preview-description {
+            color: #ccc;
+            margin-bottom: 24px;
+            line-height: 1.8;
+        }
+        
+        .preview-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .preview-tag {
+            padding: 6px 14px;
+            background-color: #333;
+            border-radius: 16px;
+            font-size: 13px;
+            color: #ccc;
+        }
+        
+        .preview-stats {
+            display: flex;
+            gap: 24px;
+            padding: 20px 0;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+            margin-bottom: 24px;
+        }
+        
+        .preview-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #ccc;
+        }
+        
+        .preview-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .action-btn.like {
+            background-color: #ea4c89;
+            color: #fff;
+        }
+        
+        .action-btn.like:hover {
+            background-color: #e8377a;
+        }
+        
+        .action-btn.like.active {
+            background-color: #ff6b9d;
+        }
+        
+        .action-btn.collect {
+            background-color: #333;
+            color: #fff;
+        }
+        
+        .action-btn.collect:hover {
+            background-color: #444;
+        }
+        
+        .action-btn.collect.active {
+            background-color: #ffd700;
+            color: #000;
+        }
+        
+        .preview-close {
+            position: fixed;
+            top: 20px;
+            right: 40px;
+            font-size: 40px;
+            color: #666;
+            cursor: pointer;
+            z-index: 2001;
+            transition: color 0.2s;
+        }
+        
+        .preview-close:hover {
+            color: #fff;
+        }
+        
+        /* 评论区 */
+        .preview-comments {
+            margin-top: 24px;
+        }
+        
+        .preview-comments h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+        
+        .comment-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .comment-item {
+            padding: 16px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .comment-author {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .comment-rating {
+            color: #f39c12;
+            font-size: 12px;
+            margin-left: auto;
+        }
+        
+        .comment-text {
+            font-size: 14px;
+            color: #ccc;
+            margin-left: 42px;
+        }
+        
+        .comment-form {
+            margin-top: 16px;
+        }
+        
+        .comment-input {
+            width: 100%;
+            padding: 12px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 12px;
+        }
+        
+        .comment-input:focus {
+            outline: none;
+            border-color: #ea4c89;
+        }
+        
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ea4c89;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 3000;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #999;
+        }
+        
+        .empty-state p {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="#" class="logo">Dribbb</a>
+            <div class="nav-links">
+                <a class="nav-link active">Popular</a>
+                <a class="nav-link">New</a>
+                <a class="nav-link">Following</a>
+            </div>
+        </div>
+        
+        <div class="navbar-center">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search shots..." onkeyup="handleSearch(event)">
+            </div>
+        </div>
+        
+        <div class="navbar-right">
+            <button class="btn btn-outline">Sign in</button>
+            <button class="btn btn-primary">Join Free</button>
+        </div>
+    </nav>
+    
+    <!-- 分类标签栏 -->
+    <div class="category-bar">
+        <div class="category-tag active" onclick="filterByCategory('all')">All Shots</div>
+        <div class="category-tag" onclick="filterByCategory('web')">Web Design</div>
+        <div class="category-tag" onclick="filterByCategory('mobile')">Mobile</div>
+        <div class="category-tag" onclick="filterByCategory('branding')">Branding</div>
+        <div class="category-tag" onclick="filterByCategory('illustration')">Illustration</div>
+        <div class="category-tag" onclick="filterByCategory('animation')">Animation</div>
+        <div class="category-tag" onclick="filterByCategory('product')">Product Design</div>
+        <div class="category-tag" onclick="filterByCategory('typography')">Typography</div>
+    </div>
+    
+    <!-- 作品瀑布流 -->
+    <div class="masonry-grid" id="shotsGrid">
+        <!-- 作品卡片将通过 JavaScript 动态生成 -->
+    </div>
+    
+    <!-- 作品预览模态框 -->
+    <div id="previewModal" class="preview-modal">
+        <span class="preview-close" onclick="closePreview()">&times;</span>
+        <div class="preview-content">
+            <div class="preview-image-container">
+                <img id="previewImage" class="preview-image" src="" alt="">
+            </div>
+            <div class="preview-info">
+                <div class="preview-header">
+                    <div class="preview-avatar" id="previewAvatar"></div>
+                    <div class="preview-author-info">
+                        <h2 id="previewAuthorName"></h2>
+                        <span id="previewTime"></span>
+                    </div>
+                </div>
+                
+                <h1 class="preview-title" id="previewTitle"></h1>
+                <p class="preview-description" id="previewDescription"></p>
+                
+                <div class="preview-tags" id="previewTags"></div>
+                
+                <div class="preview-stats">
+                    <div class="preview-stat">
+                        <span>❤️</span>
+                        <span id="previewLikes"></span>
+                    </div>
+                    <div class="preview-stat">
+                        <span>👁️</span>
+                        <span id="previewViews"></span>
+                    </div>
+                    <div class="preview-stat">
+                        <span>💾</span>
+                        <span id="previewCollects"></span>
+                    </div>
+                </div>
+                
+                <div class="preview-actions">
+                    <button class="action-btn like" id="likeBtn" onclick="toggleLike()">
+                        <span>❤️</span> Like
+                    </button>
+                    <button class="action-btn collect" id="collectBtn" onclick="toggleCollect()">
+                        <span>💾</span> Collect
+                    </button>
+                </div>
+                
+                <div class="preview-comments">
+                    <h3>Comments (<span id="commentCount">0</span>)</h3>
+                    <div class="comment-list" id="commentList"></div>
+                    <div class="comment-form">
+                        <textarea class="comment-input" id="commentInput" placeholder="Add a comment..."></textarea>
+                        <button class="btn btn-primary" onclick="addComment()" style="width: 100%;">Post Comment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast 提示 -->
+    <div id="toast" class="toast"></div>
+    
+    <script>
+        // 示例作品数据
+        let shots = [
+            {
+                id: 1,
+                title: "Dashboard Design System",
+                author: "Sarah Chen",
+                description: "A comprehensive dashboard design system featuring dark mode support, responsive layouts, and extensive component library. Perfect for SaaS applications and data-driven products.",
+                category: "web",
+                tags: ["Dashboard", "UI Design", "Dark Mode", "SaaS"],
+                image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
+                likes: 1247,
+                views: 8934,
+                collects: 342,
+                liked: false,
+                collected: false,
+                comments: [
+                    { author: "Alex Kim", text: "Amazing attention to detail! The dark mode looks stunning.", rating: 5 },
+                    { author: "Jordan Lee", text: "This is exactly what I needed for my project. Great work!", rating: 5 }
+                ],
+                createdAt: "2 hours ago"
+            },
+            {
+                id: 2,
+                title: "E-commerce Mobile App",
+                author: "Mike Design",
+                description: "Modern e-commerce mobile app design with intuitive navigation, beautiful product cards, and seamless checkout experience.",
+                category: "mobile",
+                tags: ["Mobile", "E-commerce", "Shopping", "iOS"],
+                image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=800&fit=crop",
+                likes: 892,
+                views: 5621,
+                collects: 156,
+                liked: false,
+                collected: false,
+                comments: [
+                    { author: "Emma Wilson", text: "Clean and intuitive design!", rating: 4 }
+                ],
+                createdAt: "5 hours ago"
+            },
+            {
+                id: 3,
+                title: "Brand Identity - Tech Startup",
+                author: "Creative Studio",
+                description: "Complete brand identity design for a tech startup including logo, color palette, typography, and brand guidelines.",
+                category: "branding",
+                tags: ["Branding", "Logo", "Identity", "Startup"],
+                image: "https://images.unsplash.com/photo-1634942537034-2531766767d1?w=600&h=450&fit=crop",
+                likes: 2156,
+                views: 12453,
+                collects: 678,
+                liked: false,
+                collected: false,
+                comments: [],
+                createdAt: "1 day ago"
+            },
+            {
+                id: 4,
+                title: "Travel App Illustration Set",
+                author: "Illustrator Pro",
+                description: "A collection of custom illustrations for a travel booking application. Features various travel scenarios and destinations.",
+                category: "illustration",
+                tags: ["Illustration", "Travel", "Vector", "App"],
+                image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&h=500&fit=crop",
+                likes: 1563,
+                views: 9876,
+                collects: 423,
+                liked: false,
+                collected: false,
+                comments: [
+                    { author: "Tom Baker", text: "Beautiful illustrations!", rating: 5 }
+                ],
+                createdAt: "2 days ago"
+            },
+            {
+                id: 5,
+                title: "Loading Animation Collection",
+                author: "Motion Master",
+                description: "A set of smooth and creative loading animations for web and mobile applications. Built with CSS and Lottie.",
+                category: "animation",
+                tags: ["Animation", "Loading", "CSS", "Lottie"],
+                image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=400&fit=crop",
+                likes: 3421,
+                views: 18765,
+                collects: 891,
+                liked: false,
+                collected: false,
+                comments: [],
+                createdAt: "3 days ago"
+            },
+            {
+                id: 6,
+                title: "Minimalist Typography Poster",
+                author: "Type Explorer",
+                description: "Experimental typography poster exploring the relationship between form and meaning through letterforms.",
+                category: "typography",
+                tags: ["Typography", "Poster", "Minimal", "Art"],
+                image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=750&fit=crop",
+                likes: 987,
+                views: 6543,
+                collects: 234,
+                liked: false,
+                collected: false,
+                comments: [],
+                createdAt: "4 days ago"
+            },
+            {
+                id: 7,
+                title: "Fitness Tracker Interface",
+                author: "UX Wizard",
+                description: "Health and fitness tracking app with comprehensive data visualization, workout plans, and progress tracking.",
+                category: "product",
+                tags: ["Fitness", "Health", "Tracker", "Dashboard"],
+                image: "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=600&h=400&fit=crop",
+                likes: 1876,
+                views: 11234,
+                collects: 456,
+                liked: false,
+                collected: false,
+                comments: [
+                    { author: "FitLife", text: "Great design for fitness tracking!", rating: 5 }
+                ],
+                createdAt: "5 days ago"
+            },
+            {
+                id: 8,
+                title: "Social Media Dashboard",
+                author: "Data Visualizer",
+                description: "Analytics dashboard for social media management with real-time data and performance metrics.",
+                category: "web",
+                tags: ["Dashboard", "Analytics", "Social Media", "Data"],
+                image: "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=600&h=350&fit=crop",
+                likes: 2543,
+                views: 15678,
+                collects: 567,
+                liked: false,
+                collected: false,
+                comments: [],
+                createdAt: "6 days ago"
+            },
+            {
+                id: 9,
+                title: "Banking App Redesign",
+                author: "FinTech Designer",
+                description: "Modern banking application with focus on security, simplicity, and user experience.",
+                category: "mobile",
+                tags: ["Banking", "FinTech", "Finance", "Security"],
+                image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=600&fit=crop",
+                likes: 3210,
+                views: 19876,
+                collects: 789,
+                liked: false,
+                collected: false,
+                comments: [
+                    { author: "BankUser", text: "Finally a banking app that looks modern!", rating: 5 }
+                ],
+                createdAt: "1 week ago"
+            },
+            {
+                id: 10,
+                title: "Coffee Shop Branding",
+                author: "Brand Artist",
+                description: "Complete brand identity for an artisanal coffee shop including packaging, signage, and merchandise.",
+                category: "branding",
+                tags: ["Coffee", "Branding", "Packaging", "Logo"],
+                image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=450&fit=crop",
+                likes: 1654,
+                views: 10234,
+                collects: 345,
+                liked: false,
+                collected: false,
+                comments: [],
+                createdAt: "1 week ago"
+            },
+            {
+                id: 11,
+                title: "Weather App Concept",
+                author: "UI Genius",
+                description: "Creative weather app with beautiful animations and intuitive data presentation.",
+                category: "mobile",
+                tags: ["Weather", "Animation", "Mobile", "Concept"],
+                image: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=600&h=700&fit=crop",
+                likes: 2876,
+                views: 17654,
+                collects: 623,
+                liked: false,
+                collected: false,
+                comments: [],
+                createdAt: "2 weeks ago"
+            },
+            {
+                id: 12,
+                title: "Music Streaming Interface",
+                author: "Audio Designer",
+                description: "Modern music streaming platform with focus on discovery, playlists, and social features.",
+                category: "web",
+                tags: ["Music", "Streaming", "Audio", "Social"],
+                image: "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=600&h=400&fit=crop",
+                likes: 1987,
+                views: 12345,
+                collects: 412,
+                liked: false,
+                collected: false,
+                comments: [],
+                createdAt: "2 weeks ago"
+            }
+        ];
+        
+        let currentCategory = 'all';
+        let currentShot = null;
+        
+        // 格式化数字
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+        
+        // 获取名字首字母
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase();
+        }
+        
+        // 渲染作品列表
+        function renderShots() {
+            const grid = document.getElementById('shotsGrid');
+            grid.innerHTML = '';
+            
+            const filteredShots = currentCategory === 'all' 
+                ? shots 
+                : shots.filter(shot => shot.category === currentCategory);
+            
+            if (filteredShots.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="column-span: all;">
+                        <div class="empty-state-icon">🎨</div>
+                        <h3>No shots found</h3>
+                        <p>Try a different category or search term</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredShots.forEach(shot => {
+                const card = document.createElement('div');
+                card.className = 'shot-card';
+                card.onclick = () => openPreview(shot.id);
+                
+                card.innerHTML = `
+                    <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${Math.random() > 0.5 ? '4/3' : '3/4'}; object-fit: cover;">
+                    <div class="shot-overlay">
+                        <h3 class="shot-title">${shot.title}</h3>
+                        <div class="shot-author">
+                            <div class="author-avatar">${getInitials(shot.author)}</div>
+                            <span class="author-name">${shot.author}</span>
+                        </div>
+                        <div class="shot-stats">
+                            <div class="stat-item">
+                                <span class="stat-icon">❤️</span>
+                                <span>${formatNumber(shot.likes)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">👁️</span>
+                                <span>${formatNumber(shot.views)}</span>
+                            </div>
+                        </div>
+                        <div class="shot-tags">
+                            ${shot.tags.slice(0, 3).map(tag => `<span class="shot-tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        // 打开预览模态框
+        function openPreview(shotId) {
+            currentShot = shots.find(s => s.id === shotId);
+            if (!currentShot) return;
+            
+            document.getElementById('previewImage').src = currentShot.image;
+            document.getElementById('previewAvatar').textContent = getInitials(currentShot.author);
+            document.getElementById('previewAuthorName').textContent = currentShot.author;
+            document.getElementById('previewTime').textContent = currentShot.createdAt;
+            document.getElementById('previewTitle').textContent = currentShot.title;
+            document.getElementById('previewDescription').textContent = currentShot.description;
+            document.getElementById('previewTags').innerHTML = currentShot.tags.map(tag => 
+                `<span class="preview-tag">${tag}</span>`
+            ).join('');
+            document.getElementById('previewLikes').textContent = formatNumber(currentShot.likes);
+            document.getElementById('previewViews').textContent = formatNumber(currentShot.views);
+            document.getElementById('previewCollects').textContent = formatNumber(currentShot.collects);
+            document.getElementById('commentCount').textContent = currentShot.comments.length;
+            
+            // 更新点赞和收藏按钮状态
+            updateActionButtons();
+            
+            // 渲染评论
+            renderComments();
+            
+            document.getElementById('previewModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 关闭预览模态框
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentShot = null;
+        }
+        
+        // 更新操作按钮状态
+        function updateActionButtons() {
+            if (!currentShot) return;
+            
+            const likeBtn = document.getElementById('likeBtn');
+            const collectBtn = document.getElementById('collectBtn');
+            
+            if (currentShot.liked) {
+                likeBtn.classList.add('active');
+                likeBtn.innerHTML = '<span>❤️</span> Liked';
+            } else {
+                likeBtn.classList.remove('active');
+                likeBtn.innerHTML = '<span>❤️</span> Like';
+            }
+            
+            if (currentShot.collected) {
+                collectBtn.classList.add('active');
+                collectBtn.innerHTML = '<span>💾</span> Collected';
+            } else {
+                collectBtn.classList.remove('active');
+                collectBtn.innerHTML = '<span>💾</span> Collect';
+            }
+        }
+        
+        // 点赞
+        function toggleLike() {
+            if (!currentShot) return;
+            
+            currentShot.liked = !currentShot.liked;
+            currentShot.likes += currentShot.liked ? 1 : -1;
+            
+            updateActionButtons();
+            document.getElementById('previewLikes').textContent = formatNumber(currentShot.likes);
+            
+            showToast(currentShot.liked ? 'Added to likes!' : 'Removed from likes');
+            renderShots();
+        }
+        
+        // 收藏
+        function toggleCollect() {
+            if (!currentShot) return;
+            
+            currentShot.collected = !currentShot.collected;
+            currentShot.collects += currentShot.collected ? 1 : -1;
+            
+            updateActionButtons();
+            document.getElementById('previewCollects').textContent = formatNumber(currentShot.collects);
+            
+            showToast(currentShot.collected ? 'Added to collections!' : 'Removed from collections');
+            renderShots();
+        }
+        
+        // 渲染评论
+        function renderComments() {
+            if (!currentShot) return;
+            
+            const commentList = document.getElementById('commentList');
+            
+            if (currentShot.comments.length === 0) {
+                commentList.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No comments yet. Be the first to comment!</p>';
+                return;
+            }
+            
+            commentList.innerHTML = currentShot.comments.map(comment => `
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="comment-avatar">${getInitials(comment.author)}</div>
+                        <span class="comment-author">${comment.author}</span>
+                        <span class="comment-rating">${'★'.repeat(comment.rating || 4)}${'☆'.repeat(5 - (comment.rating || 4))}</span>
+                    </div>
+                    <p class="comment-text">${comment.text}</p>
+                </div>
+            `).join('');
+        }
+        
+        // 添加评论
+        function addComment() {
+            if (!currentShot) return;
+            
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            
+            if (!text) {
+                showToast('Please enter a comment');
+                return;
+            }
+            
+            currentShot.comments.push({
+                author: "Guest User",
+                text: text,
+                rating: 4
+            });
+            
+            input.value = '';
+            document.getElementById('commentCount').textContent = currentShot.comments.length;
+            renderComments();
+            
+            showToast('Comment added successfully!');
+        }
+        
+        // 分类筛选
+        function filterByCategory(category) {
+            currentCategory = category;
+            
+            // 更新标签状态
+            document.querySelectorAll('.category-tag').forEach(tag => {
+                tag.classList.remove('active');
+                if (tag.textContent.toLowerCase().includes(category) || 
+                    (category === 'all' && tag.textContent.includes('All'))) {
+                    tag.classList.add('active');
+                }
+            });
+            
+            renderShots();
+        }
+        
+        // 搜索功能
+        function handleSearch(event) {
+            if (event.key === 'Enter') {
+                const query = event.target.value.toLowerCase();
+                
+                if (query === '') {
+                    currentCategory = 'all';
+                } else {
+                    // 搜索时暂时忽略分类筛选
+                    const filteredShots = shots.filter(shot => 
+                        shot.title.toLowerCase().includes(query) ||
+                        shot.author.toLowerCase().includes(query) ||
+                        shot.tags.some(tag => tag.toLowerCase().includes(query)) ||
+                        shot.description.toLowerCase().includes(query)
+                    );
+                    
+                    const grid = document.getElementById('shotsGrid');
+                    grid.innerHTML = '';
+                    
+                    if (filteredShots.length === 0) {
+                        grid.innerHTML = `
+                            <div class="empty-state" style="column-span: all;">
+                                <div class="empty-state-icon">🔍</div>
+                                <h3>No results found</h3>
+                                <p>Try different keywords</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    filteredShots.forEach(shot => {
+                        const card = document.createElement('div');
+                        card.className = 'shot-card';
+                        card.onclick = () => openPreview(shot.id);
+                        
+                        card.innerHTML = `
+                            <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${Math.random() > 0.5 ? '4/3' : '3/4'}; object-fit: cover;">
+                            <div class="shot-overlay">
+                                <h3 class="shot-title">${shot.title}</h3>
+                                <div class="shot-author">
+                                    <div class="author-avatar">${getInitials(shot.author)}</div>
+                                    <span class="author-name">${shot.author}</span>
+                                </div>
+                                <div class="shot-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-icon">❤️</span>
+                                        <span>${formatNumber(shot.likes)}</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-icon">👁️</span>
+                                        <span>${formatNumber(shot.views)}</span>
+                                    </div>
+                                </div>
+                                <div class="shot-tags">
+                                    ${shot.tags.slice(0, 3).map(tag => `<span class="shot-tag">${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                        `;
+                        
+                        grid.appendChild(card);
+                    });
+                }
+            }
+        }
+        
+        // 显示 Toast 提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('previewModal');
+            if (event.target === modal) {
+                closePreview();
+            }
+        }
+        
+        // ESC 键关闭模态框
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePreview();
+            }
+        });
+        
+        // 初始化渲染
+        renderShots();
+    </script>
+</body>
+</html>
