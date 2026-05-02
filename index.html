@@ -1261,7 +1261,8 @@
         
         // 获取名字首字母
         function getInitials(name) {
-            return name.split(' ').map(n => n[0]).join('').toUpperCase();
+            if (!name) return '?';
+            return name.split(' ').map(n => n[0] ? n[0] : '?').join('').toUpperCase();
         }
         
         // 格式化时间
@@ -1752,14 +1753,25 @@
         // 打开预览
         function openPreview(shotId) {
             const shots = getShots();
-            const shot = shots.find(s => s.id === shotId || s._id === shotId);
+            const shot = shots.find(s => (s.id || s._id) === shotId);
             if (!shot) return;
-            
+
             shot.views = (shot.views || 0) + 1;
             saveShots(shots);
-            
-            currentShot = shot;
-            
+
+            const convertedShot = { ...shot };
+            convertedShot.id = shot.id || shot._id;
+
+            if (convertedShot.comments && convertedShot.comments.length > 0) {
+                convertedShot.comments = convertedShot.comments.map(comment => ({
+                    ...comment,
+                    author: comment.userName || comment.author || '匿名用户',
+                    text: comment.content || comment.text || ''
+                }));
+            }
+
+            currentShot = convertedShot;
+
             document.getElementById('previewImage').src = shot.image;
             document.getElementById('previewAvatar').textContent = getInitials(shot.author);
             document.getElementById('previewAuthorName').textContent = shot.author;
@@ -1771,10 +1783,10 @@
             document.getElementById('previewViews').textContent = formatNumber(shot.views);
             document.getElementById('previewCollects').textContent = formatNumber(shot.collects || 0);
             document.getElementById('commentCount').textContent = (shot.comments || []).length;
-            
+
             updateActionButtons();
             renderComments();
-            
+
             document.getElementById('previewModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
@@ -1848,24 +1860,27 @@
         
         function renderComments() {
             if (!currentShot) return;
-            
+
             const commentList = document.getElementById('commentList');
-            
+
             if (currentShot.comments.length === 0) {
                 commentList.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">暂无评论</p>';
                 return;
             }
-            
+
             commentList.innerHTML = currentShot.comments.map(comment => {
-                const stars = '★'.repeat(comment.rating || 4) + '☆'.repeat(5 - (comment.rating || 4));
+                const author = comment.author || comment.userName || '匿名用户';
+                const text = comment.text || comment.content || '';
+                const rating = comment.rating || 4;
+                const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
                 return `
                     <div class="comment-item">
                         <div class="comment-header">
-                            <div class="comment-avatar">${getInitials(comment.author)}</div>
-                            <span class="comment-author">${comment.author}</span>
+                            <div class="comment-avatar">${getInitials(author)}</div>
+                            <span class="comment-author">${author}</span>
                             <span class="comment-rating">${stars}</span>
                         </div>
-                        <p class="comment-text">${comment.text}</p>
+                        <p class="comment-text">${text}</p>
                     </div>
                 `;
             }).join('');
@@ -1935,11 +1950,22 @@
                 const response = await api.addComment(shotId, commentData, token);
 
                 if (response.message === '评论成功' || response.shot) {
-                    currentShot = response.shot;
+                    let updatedShot = response.shot;
+                    updatedShot.id = updatedShot._id || updatedShot.id;
+
+                    if (updatedShot.comments && updatedShot.comments.length > 0) {
+                        updatedShot.comments = updatedShot.comments.map(comment => ({
+                            ...comment,
+                            author: comment.userName || comment.author || '匿名用户',
+                            text: comment.content || comment.text || ''
+                        }));
+                    }
+
+                    currentShot = updatedShot;
                     const shots = getShots();
                     const shotIndex = shots.findIndex(s => (s.id || s._id) === shotId);
                     if (shotIndex !== -1) {
-                        shots[shotIndex] = response.shot;
+                        shots[shotIndex] = updatedShot;
                         saveShots(shots);
                     }
 
@@ -2059,7 +2085,18 @@
             try {
                 const response = await api.getAllShots();
                 if (Array.isArray(response)) {
-                    saveShots(response);
+                    const convertedShots = response.map(shot => {
+                        const newShot = { ...shot, id: shot._id || shot.id };
+                        if (newShot.comments && newShot.comments.length > 0) {
+                            newShot.comments = newShot.comments.map(comment => ({
+                                ...comment,
+                                author: comment.userName || comment.author || '匿名用户',
+                                text: comment.content || comment.text || ''
+                            }));
+                        }
+                        return newShot;
+                    });
+                    saveShots(convertedShots);
                     renderShots();
                 }
             } catch (error) {
