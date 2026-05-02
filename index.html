@@ -1221,6 +1221,9 @@
         
         // 格式化数字
         function formatNumber(num) {
+            if (num === undefined || num === null || isNaN(num)) {
+                return '0';
+            }
             if (num >= 1000000) {
                 return (num / 1000000).toFixed(1) + 'M';
             } else if (num >= 1000) {
@@ -1611,9 +1614,11 @@
             }
             
             grid.innerHTML = shots.map(shot => {
+                const shotId = shot.id || shot._id;
                 const aspectRatio = Math.random() > 0.5 ? '4/3' : '3/4';
+                const tags = shot.tags || [];
                 return `
-                    <div class="shot-card" onclick="openPreview(${shot.id})">
+                    <div class="shot-card" onclick="openPreview('${shotId}')">
                         <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${aspectRatio}; object-fit: cover;">
                         <div class="shot-overlay">
                             <h3 class="shot-title">${shot.title}</h3>
@@ -1632,7 +1637,7 @@
                                 </div>
                             </div>
                             <div class="shot-tags">
-                                ${shot.tags.slice(0, 3).map(tag => `<span class="shot-tag">${tag}</span>`).join('')}
+                                ${tags.slice(0, 3).map(tag => `<span class="shot-tag">${tag}</span>`).join('')}
                             </div>
                         </div>
                     </div>
@@ -1689,9 +1694,10 @@
                 }
                 
                 grid.innerHTML = filteredShots.map(shot => {
+                    const shotId = shot.id || shot._id;
                     const aspectRatio = Math.random() > 0.5 ? '4/3' : '3/4';
                     return `
-                        <div class="shot-card" onclick="openPreview(${shot.id})">
+                        <div class="shot-card" onclick="openPreview('${shotId}')">
                             <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${aspectRatio}; object-fit: cover;">
                             <div class="shot-overlay">
                                 <h3 class="shot-title">${shot.title}</h3>
@@ -1719,10 +1725,10 @@
         // 打开预览
         function openPreview(shotId) {
             const shots = getShots();
-            const shot = shots.find(s => s.id === shotId);
+            const shot = shots.find(s => s.id === shotId || s._id === shotId);
             if (!shot) return;
             
-            shot.views++;
+            shot.views = (shot.views || 0) + 1;
             saveShots(shots);
             
             currentShot = shot;
@@ -1732,12 +1738,12 @@
             document.getElementById('previewAuthorName').textContent = shot.author;
             document.getElementById('previewTime').textContent = formatTime(shot.createdAt);
             document.getElementById('previewTitle').textContent = shot.title;
-            document.getElementById('previewDescription').textContent = shot.description;
-            document.getElementById('previewTags').innerHTML = shot.tags.map(tag => `<span class="preview-tag">${tag}</span>`).join('');
+            document.getElementById('previewDescription').textContent = shot.description || '';
+            document.getElementById('previewTags').innerHTML = (shot.tags || []).map(tag => `<span class="preview-tag">${tag}</span>`).join('');
             document.getElementById('previewLikes').textContent = formatNumber(shot.likes);
             document.getElementById('previewViews').textContent = formatNumber(shot.views);
-            document.getElementById('previewCollects').textContent = formatNumber(shot.collects);
-            document.getElementById('commentCount').textContent = shot.comments.length;
+            document.getElementById('previewCollects').textContent = formatNumber(shot.collects || 0);
+            document.getElementById('commentCount').textContent = (shot.comments || []).length;
             
             updateActionButtons();
             renderComments();
