@@ -421,44 +421,36 @@
             transition: all 0.3s;
             margin-bottom: 24px;
         }
-        
+
         .upload-area:hover {
             border-color: #ea4c89;
             background-color: rgba(234, 76, 137, 0.05);
         }
-        
-        .upload-area.has-image {
-            padding: 0;
-            border: none;
+
+        .upload-placeholder {
+            display: block;
         }
-        
+
+        .upload-placeholder:hover {
+            cursor: pointer;
+        }
+
         .upload-icon {
             font-size: 48px;
             margin-bottom: 16px;
         }
-        
+
         .upload-text {
             color: #999;
             font-size: 14px;
         }
-        
-        .upload-preview {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            border-radius: 12px;
-            display: none;
-        }
-        
-        .upload-preview.show {
-            display: block;
-        }
 
         .upload-previews {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 12px;
             display: none;
+            margin-top: 16px;
         }
 
         .upload-previews.show {
@@ -469,11 +461,12 @@
             position: relative;
             border-radius: 8px;
             overflow: hidden;
+            aspect-ratio: 1;
         }
 
         .upload-preview-item img {
             width: 100%;
-            height: 120px;
+            height: 100%;
             object-fit: cover;
         }
 
@@ -481,7 +474,7 @@
             position: absolute;
             top: 4px;
             right: 4px;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             color: white;
             border: none;
             border-radius: 50%;
@@ -492,10 +485,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 10;
         }
 
         .upload-preview-item .remove-btn:hover {
-            background-color: rgba(234, 76, 137, 0.9);
+            background-color: #ea4c89;
         }
 
         .upload-preview-item.add-more {
@@ -1099,10 +1093,12 @@
                 <div class="form-group">
                     <label>作品图片</label>
                     <div class="upload-area" id="uploadArea">
-                        <div id="uploadPlaceholder" onclick="document.getElementById('uploadImage').click()">
+                        <!-- 初始状态：大的上传按钮 -->
+                        <div id="uploadPlaceholder" class="upload-placeholder">
                             <div class="upload-icon">📷</div>
                             <div class="upload-text">点击上传图片<br>支持 JPG、PNG、GIF，建议尺寸 800x600<br>可上传多张图片</div>
                         </div>
+                        <!-- 图片预览网格 -->
                         <div id="uploadPreviews" class="upload-previews"></div>
                     </div>
                     <input type="file" id="uploadImage" accept="image/*" multiple style="display: none;" onchange="handleImageSelect(event)">
@@ -1629,29 +1625,34 @@
         function renderUploadPreviews() {
             const uploadPlaceholder = document.getElementById('uploadPlaceholder');
             const uploadPreviews = document.getElementById('uploadPreviews');
-            const uploadArea = document.getElementById('uploadArea');
 
             if (uploadedImages.length === 0) {
+                // 没有图片时：显示大的占位符，隐藏预览
                 uploadPlaceholder.style.display = 'block';
                 uploadPreviews.classList.remove('show');
-                uploadArea.classList.remove('has-image');
                 uploadPreviews.innerHTML = '';
             } else {
+                // 有图片时：隐藏大的占位符，显示预览网格
                 uploadPlaceholder.style.display = 'none';
                 uploadPreviews.classList.add('show');
-                uploadArea.classList.add('has-image');
 
-                uploadPreviews.innerHTML = uploadedImages.map((url, index) => `
+                // 渲染已上传的图片
+                let html = uploadedImages.map((url, index) => `
                     <div class="upload-preview-item">
                         <img src="${url}" alt="预览 ${index + 1}">
                         <button class="remove-btn" onclick="removeImage(${index})">&times;</button>
                     </div>
-                `).join('') + `
+                `).join('');
+
+                // 添加"+"按钮
+                html += `
                     <div class="upload-preview-item add-more" onclick="document.getElementById('uploadImage').click()">
                         <div class="add-more-icon">+</div>
                         <div class="add-more-text">添加图片</div>
                     </div>
                 `;
+
+                uploadPreviews.innerHTML = html;
             }
         }
 
@@ -2356,6 +2357,19 @@
             initializeData();
             initializeUser();
             await loadShotsFromAPI();
+            
+            // 初始化上传区域点击事件
+            const uploadArea = document.getElementById('uploadArea');
+            if (uploadArea) {
+                uploadArea.addEventListener('click', function(e) {
+                    // 如果点击的是删除按钮或添加按钮，我们已经在它们的onclick中处理了
+                    if (e.target.closest('.remove-btn') || e.target.closest('.add-more')) {
+                        return;
+                    }
+                    // 否则，点击任何地方都打开文件选择器
+                    document.getElementById('uploadImage').click();
+                });
+            }
         }
         
         initializeApp();
