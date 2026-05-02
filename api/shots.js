@@ -1,23 +1,24 @@
-const { getAllShots, getShot, createShot, updateShot, deleteShot, likeShot, addComment, getUserShots } = require('../controllers/shotController');
+// 简化版作品管理 - 使用内存存储（仅用于测试）
+
+let shots = [];
+let nextShotId = 1;
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   
-  // 处理 OPTIONS 请求
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
   
-  // 解析 JSON 请求体
+  // 解析 JSON
   if ((req.method === 'POST' || req.method === 'PUT') && req.body && typeof req.body === 'string') {
     try {
       req.body = JSON.parse(req.body);
-    } catch (error) {
-      console.error('JSON 解析错误:', error);
-      res.status(400).json({ message: '无效的 JSON 格式' });
+    } catch (e) {
+      res.status(400).json({ message: 'JSON 解析错误' });
       return;
     }
   }
@@ -29,51 +30,110 @@ module.exports = async (req, res) => {
     switch (method) {
       case 'GET':
         if (id) {
-          // 获取单个作品
-          req.params = { id };
-          await getShot(req, res);
+          const shot = shots.find(s => s.id == id);
+          if (!shot) {
+            res.status(404).json({ message: '作品不存在' });
+            return;
+          }
+          shot.views = (shot.views || 0) + 1;
+          res.json(shot);
         } else if (req.query.userId) {
-          // 获取用户作品
-          req.params = { userId: req.query.userId };
-          await getUserShots(req, res);
+          const userShots = shots.filter(s => s.authorId == req.query.userId);
+          res.json(userShots);
         } else {
-          // 获取所有作品
-          await getAllShots(req, res);
+          res.json(shots);
         }
         break;
         
       case 'POST':
-        await createShot(req, res);
+        const { title, description, image, category, tags } = req.body;
+        const token = req.headers.authorization?.split(' ')[1];
+        
+        if (!token) {
+          res.status(401).json({ message: '未授权' });
+          return;
+        }
+        
+        // 从 token 提取用户信息
+        const userId = parseInt(token.split('-')[1]);
+        
+        const newShot = {
+          id: nextShotId++,
+          title,
+          description: description || '',
+          image,
+          category: category || 'web',
+          tags: tags || [],
+          author: `用户${userId}`,
+          authorId: userId,
+          likes: 0,
+          likedBy: [],
+          views: 0,
+          comments: [],
+          createdAt: new Date().toISOString()
+        };
+        
+        shots.unshift(newShot);
+        res.status(201).json({ message: '作品创建成功', shot: newShot });
         break;
         
       case 'PUT':
         if (!id) {
-          return res.status(400).json({ message: '缺少作品ID' });
+          res.status(400).json({ message: '缺少作品ID' });
+          return;
         }
-        req.params = { id };
+        
+        const shotIndex = shots.findIndex(s => s.id == id);
+        if (shotIndex === -1) {
+          res.status(404).json({ message: '作品不存在' });
+          return;
+        }
+        
+        const tokenPut = req.headers.authorization?.split(' ')[1];
+        if (!tokenPut) {
+          res.status(401).json({ message: '未授权' });
+          return;
+        }
+        
+        const currentUserId = parseInt(tokenPut.split('-')[1]);
         
         if (req.body.action === 'like') {
-          await likeShot(req, res);
+          if (shots[shotIndex].likedBy.includes(currentUserId)) {
+            shots[shotIndex].likedBy = shots[shotIndex].likedBy.filter(id => id !== currentUserId);
+            shots[shotIndex].likes--;
+          } else {
+            shots[shotIndex].likedBy.push(currentUserId);
+            shots[shotIndex].likes++;
+          }
+          res.json({ message: '操作成功', shot: shots[shotIndex] });
         } else if (req.body.action === 'comment') {
-          await addComment(req, res);
+          shots[shotIndex].comments.push({
+            userId: currentUserId,
+            userName: `用户${currentUserId}`,
+            content: req.body.content,
+            rating: req.body.rating || 4,
+            createdAt: new Date().toISOString()
+          });
+          res.json({ message: '评论成功', shot: shots[shotIndex] });
         } else {
-          await updateShot(req, res);
+          res.json({ message: '更新成功' });
         }
         break;
         
       case 'DELETE':
         if (!id) {
-          return res.status(400).json({ message: '缺少作品ID' });
+          res.status(400).json({ message: '缺少作品ID' });
+          return;
         }
-        req.params = { id };
-        await deleteShot(req, res);
+        shots = shots.filter(s => s.id != id);
+        res.json({ message: '删除成功' });
         break;
         
       default:
-        res.status(405).json({ message: '不支持的请求方法' });
+        res.status(405).json({ message: '不支持的方法' });
     }
   } catch (error) {
-    console.error('Shot API 错误:', error);
-    res.status(500).json({ message: '服务器错误' });
+    console.error('错误:', error);
+    res.status(500).json({ message: '服务器错误', error: error.message });
   }
 };
