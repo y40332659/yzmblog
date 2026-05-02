@@ -11,6 +11,17 @@ module.exports = async (req, res) => {
     return;
   }
   
+  // 解析 JSON 请求体
+  if (req.method === 'POST' && req.body && typeof req.body === 'string') {
+    try {
+      req.body = JSON.parse(req.body);
+    } catch (error) {
+      console.error('JSON 解析错误:', error);
+      res.status(400).json({ message: '无效的 JSON 格式' });
+      return;
+    }
+  }
+  
   const { method } = req;
   
   try {
