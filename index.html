@@ -620,6 +620,23 @@
             background-color: #ffd700;
             color: #000;
         }
+
+        /* 星级评分 */
+        .star-rating {
+            color: #333;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star-rating:hover,
+        .star-rating.active {
+            color: #f39c12;
+        }
+
+        .star-rating.preview {
+            color: #f39c12;
+        }
         
         /* 评论区 */
         .preview-comments {
@@ -1049,7 +1066,16 @@
                     <h3>评论 (<span id="commentCount">0</span>)</h3>
                     <div class="comment-list" id="commentList"></div>
                     <div class="comment-form">
-                        <textarea class="comment-input" id="detailCommentInput" placeholder="写下你的评论..." style="margin-top: 16px; width: 100%; padding: 12px; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 14px; resize: vertical; min-height: 80px; outline: none;" onfocus="this.style.borderColor='#ea4c89'" onblur="this.style.borderColor='#333'"></textarea>
+                        <div class="rating-selector" style="margin-bottom: 12px;">
+                            <span style="color: #999; font-size: 14px; margin-right: 8px;">评分:</span>
+                            <span class="star-rating" id="starRating" onclick="setRating(1)" onmouseover="previewRating(1)" onmouseout="resetRating()">★</span>
+                            <span class="star-rating" onclick="setRating(2)" onmouseover="previewRating(2)" onmouseout="resetRating()">★</span>
+                            <span class="star-rating" onclick="setRating(3)" onmouseover="previewRating(3)" onmouseout="resetRating()">★</span>
+                            <span class="star-rating" onclick="setRating(4)" onmouseover="previewRating(4)" onmouseout="resetRating()">★</span>
+                            <span class="star-rating" onclick="setRating(5)" onmouseover="previewRating(5)" onmouseout="resetRating()">★</span>
+                            <span id="ratingText" style="color: #f39c12; font-size: 13px; margin-left: 8px;">4分</span>
+                        </div>
+                        <textarea class="comment-input" id="detailCommentInput" placeholder="写下你的评论..." style="width: 100%; padding: 12px; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 14px; resize: vertical; min-height: 80px; outline: none;" onfocus="this.style.borderColor='#ea4c89'" onblur="this.style.borderColor='#333'"></textarea>
                         <button class="btn btn-primary" onclick="addComment()" style="width: 100%; margin-top: 12px;">发布评论</button>
                     </div>
                 </div>
@@ -1068,6 +1094,7 @@
         let currentShot = null;
         let uploadedImageData = null;
         let selectedTags = [];
+        let selectedRating = 4;
         
         // 初始化数据
         function initializeData() {
@@ -1843,7 +1870,43 @@
                 `;
             }).join('');
         }
-        
+
+        function setRating(rating) {
+            selectedRating = rating;
+            updateStarDisplay();
+            document.getElementById('ratingText').textContent = rating + '分';
+        }
+
+        function previewRating(rating) {
+            const stars = document.querySelectorAll('.star-rating');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('preview');
+                    star.style.color = '#f39c12';
+                } else {
+                    star.classList.remove('preview');
+                    star.style.color = '#333';
+                }
+            });
+            document.getElementById('ratingText').textContent = rating + '分';
+        }
+
+        function resetRating() {
+            updateStarDisplay();
+            document.getElementById('ratingText').textContent = selectedRating + '分';
+        }
+
+        function updateStarDisplay() {
+            const stars = document.querySelectorAll('.star-rating');
+            stars.forEach((star, index) => {
+                if (index < selectedRating) {
+                    star.style.color = '#f39c12';
+                } else {
+                    star.style.color = '#333';
+                }
+            });
+        }
+
         function addComment() {
             if (!currentShot) return;
             
@@ -1863,7 +1926,7 @@
                 author: currentUser ? currentUser.username : '匿名用户',
                 authorId: currentUser ? currentUser.id : null,
                 text,
-                rating: 4
+                rating: selectedRating
             };
             
             shot.comments.push(commentData);
