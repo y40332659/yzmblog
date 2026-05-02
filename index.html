@@ -552,70 +552,24 @@
             border-radius: 12px;
             overflow: hidden;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             position: relative;
         }
 
         .preview-images-gallery {
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
         }
 
-        .preview-image {
-            max-width: 100%;
-            max-height: 80vh;
-            object-fit: contain;
-        }
-
-        .preview-image-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+        .preview-gallery-image {
             width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
-            pointer-events: none;
-        }
-
-        .nav-btn {
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            pointer-events: all;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .nav-btn:hover {
-            background-color: rgba(234, 76, 137, 0.9);
-        }
-
-        .preview-image-dots {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            padding: 16px 0;
-        }
-
-        .image-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #333;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .image-dot.active {
-            background-color: #ea4c89;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
         }
         
         .preview-info {
@@ -1145,14 +1099,7 @@
         <span class="modal-close" style="position: fixed; top: 20px; right: 40px; font-size: 40px;" onclick="closePreview()">&times;</span>
         <div class="preview-content">
             <div class="preview-image-container">
-                <div id="previewImagesGallery" class="preview-images-gallery">
-                    <img id="previewImage" class="preview-image" src="" alt="">
-                </div>
-                <div id="previewImageNav" class="preview-image-nav" style="display: none;">
-                    <button class="nav-btn prev-btn" onclick="navigatePreviewImage(-1)">‹</button>
-                    <button class="nav-btn next-btn" onclick="navigatePreviewImage(1)">›</button>
-                </div>
-                <div id="previewImageDots" class="preview-image-dots"></div>
+                <div id="previewImagesGallery" class="preview-images-gallery"></div>
             </div>
             <div class="preview-info">
                 <div class="preview-header">
@@ -1957,11 +1904,8 @@
                 imagesToDisplay = [shot.image];
             }
 
-            // 设置当前图片索引
-            window.currentPreviewImageIndex = 0;
-
-            // 更新预览图片
-            updatePreviewGallery(imagesToDisplay);
+            // 更新预览图片 - 垂直展示
+            updatePreviewGalleryVertical(imagesToDisplay);
 
             document.getElementById('previewAvatar').textContent = getInitials(shot.author);
             document.getElementById('previewAuthorName').textContent = shot.author;
@@ -1981,62 +1925,14 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function updatePreviewGallery(images) {
-            const previewImage = document.getElementById('previewImage');
-            const previewNav = document.getElementById('previewImageNav');
-            const previewDots = document.getElementById('previewImageDots');
+        function updatePreviewGalleryVertical(images) {
+            const gallery = document.getElementById('previewImagesGallery');
 
             if (images.length > 0) {
-                previewImage.src = images[window.currentPreviewImageIndex];
-
-                // 显示导航按钮和圆点指示器（如果有多张图）
-                if (images.length > 1) {
-                    previewNav.style.display = 'flex';
-
-                    // 生成圆点指示器
-                    previewDots.innerHTML = images.map((_, index) => `
-                        <div class="image-dot ${index === window.currentPreviewImageIndex ? 'active' : ''}" 
-                             onclick="setPreviewImage(${index})"></div>
-                    `).join('');
-                } else {
-                    previewNav.style.display = 'none';
-                    previewDots.innerHTML = '';
-                }
+                gallery.innerHTML = images.map((imgUrl, index) => `
+                    <img class="preview-gallery-image" src="${imgUrl}" alt="作品图片 ${index + 1}">
+                `).join('');
             }
-        }
-
-        function navigatePreviewImage(direction) {
-            if (!currentShot) return;
-
-            let imagesToDisplay = [];
-            if (Array.isArray(currentShot.images) && currentShot.images.length > 0) {
-                imagesToDisplay = currentShot.images;
-            } else if (currentShot.image) {
-                imagesToDisplay = [currentShot.image];
-            }
-
-            if (imagesToDisplay.length <= 1) return;
-
-            // 更新索引
-            window.currentPreviewImageIndex += direction;
-            if (window.currentPreviewImageIndex < 0) {
-                window.currentPreviewImageIndex = imagesToDisplay.length - 1;
-            } else if (window.currentPreviewImageIndex >= imagesToDisplay.length) {
-                window.currentPreviewImageIndex = 0;
-            }
-
-            updatePreviewGallery(imagesToDisplay);
-        }
-
-        function setPreviewImage(index) {
-            window.currentPreviewImageIndex = index;
-            let imagesToDisplay = [];
-            if (Array.isArray(currentShot.images) && currentShot.images.length > 0) {
-                imagesToDisplay = currentShot.images;
-            } else if (currentShot.image) {
-                imagesToDisplay = [currentShot.image];
-            }
-            updatePreviewGallery(imagesToDisplay);
         }
         
         function closePreview() {
