@@ -13,7 +13,8 @@ const userSchema = new mongoose.Schema({
 const shotSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
-  image: { type: String, required: true },
+  image: { type: String },
+  images: { type: [String], default: [] },
   category: { type: String, default: 'web' },
   tags: { type: [String], default: [] },
   author: { type: String, required: true },
@@ -119,12 +120,13 @@ module.exports = async (req, res) => {
           return res.status(401).json({ message: '用户不存在' });
         }
         
-        const { title, description, image, category, tags } = req.body;
+        const { title, description, image, images, category, tags } = req.body;
         
         const shot = new Shot({
           title,
           description,
-          image,
+          image: images && images.length > 0 ? images[0] : image,
+          images: images || [image],
           category: category || 'web',
           tags: tags || [],
           author: user.username,

@@ -453,6 +453,50 @@
         .upload-preview.show {
             display: block;
         }
+
+        .upload-previews {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            display: none;
+        }
+
+        .upload-previews.show {
+            display: grid;
+        }
+
+        .upload-preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .upload-preview-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .upload-preview-item .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-preview-item .remove-btn:hover {
+            background-color: rgba(234, 76, 137, 0.9);
+        }
         
         /* 作品预览模态框 */
         .preview-modal {
@@ -489,12 +533,68 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
-        
+
+        .preview-images-gallery {
+            width: 100%;
+        }
+
         .preview-image {
             max-width: 100%;
             max-height: 80vh;
             object-fit: contain;
+        }
+
+        .preview-image-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            pointer-events: none;
+        }
+
+        .nav-btn {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            pointer-events: all;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(234, 76, 137, 0.9);
+        }
+
+        .preview-image-dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            padding: 16px 0;
+        }
+
+        .image-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #333;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .image-dot.active {
+            background-color: #ea4c89;
         }
         
         .preview-info {
@@ -974,11 +1074,11 @@
                     <div class="upload-area" id="uploadArea" onclick="document.getElementById('uploadImage').click()">
                         <div id="uploadPlaceholder">
                             <div class="upload-icon">📷</div>
-                            <div class="upload-text">点击上传图片<br>支持 JPG、PNG、GIF，建议尺寸 800x600</div>
+                            <div class="upload-text">点击上传图片<br>支持 JPG、PNG、GIF，建议尺寸 800x600<br>可上传多张图片</div>
                         </div>
-                        <img id="uploadPreview" class="upload-preview" alt="预览">
+                        <div id="uploadPreviews" class="upload-previews"></div>
                     </div>
-                    <input type="file" id="uploadImage" accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
+                    <input type="file" id="uploadImage" accept="image/*" multiple style="display: none;" onchange="handleImageSelect(event)">
                 </div>
                 
                 <div class="form-group">
@@ -1022,7 +1122,14 @@
         <span class="modal-close" style="position: fixed; top: 20px; right: 40px; font-size: 40px;" onclick="closePreview()">&times;</span>
         <div class="preview-content">
             <div class="preview-image-container">
-                <img id="previewImage" class="preview-image" src="" alt="">
+                <div id="previewImagesGallery" class="preview-images-gallery">
+                    <img id="previewImage" class="preview-image" src="" alt="">
+                </div>
+                <div id="previewImageNav" class="preview-image-nav" style="display: none;">
+                    <button class="nav-btn prev-btn" onclick="navigatePreviewImage(-1)">‹</button>
+                    <button class="nav-btn next-btn" onclick="navigatePreviewImage(1)">›</button>
+                </div>
+                <div id="previewImageDots" class="preview-image-dots"></div>
             </div>
             <div class="preview-info">
                 <div class="preview-header">
@@ -1092,7 +1199,7 @@
         let currentCategory = 'all';
         let showMyWorksOnly = false;
         let currentShot = null;
-        let uploadedImageData = null;
+        let uploadedImages = [];  // 改为数组存储多张图片
         let selectedTags = [];
         let selectedRating = 4;
         
@@ -1343,11 +1450,9 @@
             document.getElementById('uploadTitle').value = '';
             document.getElementById('uploadDescription').value = '';
             document.getElementById('uploadCategory').value = '';
-            document.getElementById('uploadPreview').classList.remove('show');
-            document.getElementById('uploadPlaceholder').style.display = 'block';
-            document.getElementById('uploadArea').classList.remove('has-image');
-            uploadedImageData = null;
+            uploadedImages = [];  // 重置图片数组
             selectedTags = [];
+            renderUploadPreviews();  // 更新预览
             renderTags();
         }
         
@@ -1470,26 +1575,54 @@
         
         // 图片上传处理
         async function handleImageSelect(e) {
-            const file = e.target.files[0];
-            if (file) {
-                showToast('正在上传图片...');
-                
-                try {
+            const files = e.target.files;
+            if (files.length === 0) return;
+
+            showToast('正在上传图片...');
+
+            try {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
                     const imageUrl = await uploadToImgur(file);
-                    uploadedImageData = imageUrl;
-                    document.getElementById('uploadPreview').src = imageUrl;
-                    document.getElementById('uploadPreview').classList.add('show');
-                    document.getElementById('uploadPlaceholder').style.display = 'none';
-                    document.getElementById('uploadArea').classList.add('has-image');
-                    
-                    const fileSize = (file.size / 1024).toFixed(1);
-                    console.log(`图片上传完成，大小: ${fileSize}KB`);
-                    showToast('图片上传成功！');
-                } catch (error) {
-                    console.error('图片上传失败:', error);
-                    showToast('图片上传失败，请重试');
+                    uploadedImages.push(imageUrl);
                 }
+
+                renderUploadPreviews();
+                showToast(`成功上传 ${files.length} 张图片！`);
+            } catch (error) {
+                console.error('图片上传失败:', error);
+                showToast('图片上传失败，请重试');
             }
+        }
+
+        // 渲染上传预览
+        function renderUploadPreviews() {
+            const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+            const uploadPreviews = document.getElementById('uploadPreviews');
+            const uploadArea = document.getElementById('uploadArea');
+
+            if (uploadedImages.length === 0) {
+                uploadPlaceholder.style.display = 'block';
+                uploadPreviews.classList.remove('show');
+                uploadArea.classList.remove('has-image');
+            } else {
+                uploadPlaceholder.style.display = 'none';
+                uploadPreviews.classList.add('show');
+                uploadArea.classList.add('has-image');
+
+                uploadPreviews.innerHTML = uploadedImages.map((url, index) => `
+                    <div class="upload-preview-item">
+                        <img src="${url}" alt="预览 ${index + 1}">
+                        <button class="remove-btn" onclick="removeImage(${index})">&times;</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 移除图片
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            renderUploadPreviews();
         }
         
         // 标签处理
@@ -1531,31 +1664,31 @@
         // 上传作品
         async function handleUpload(e) {
             e.preventDefault();
-            
-            if (!uploadedImageData) {
+
+            if (uploadedImages.length === 0) {
                 showToast('请上传作品图片');
                 return;
             }
-            
+
             const title = document.getElementById('uploadTitle').value.trim();
             const description = document.getElementById('uploadDescription').value.trim();
             const category = document.getElementById('uploadCategory').value;
-            
+
             if (!category) {
                 showToast('请选择分类');
                 return;
             }
-            
+
             try {
                 const token = getToken();
                 const response = await api.createShot({
                     title,
                     description,
-                    image: uploadedImageData,
+                    images: uploadedImages,  // 改为发送多张图片
                     category,
                     tags: [...selectedTags]
                 }, token);
-                
+
                 if (response.message === '作品创建成功') {
                     closeModal('uploadModal');
                     resetUploadForm();
@@ -1645,9 +1778,13 @@
                 const shotId = shot.id || shot._id;
                 const aspectRatio = Math.random() > 0.5 ? '4/3' : '3/4';
                 const tags = shot.tags || [];
+                // 支持多图，默认显示第一张
+                const displayImage = Array.isArray(shot.images) && shot.images.length > 0 
+                    ? shot.images[0] 
+                    : shot.image;
                 return `
                     <div class="shot-card" onclick="openPreview('${shotId}')">
-                        <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${aspectRatio}; object-fit: cover;">
+                        <img class="shot-image" src="${displayImage}" alt="${shot.title}" style="aspect-ratio: ${aspectRatio}; object-fit: cover;">
                         <div class="shot-overlay">
                             <h3 class="shot-title">${shot.title}</h3>
                             <div class="shot-author">
@@ -1724,9 +1861,12 @@
                 grid.innerHTML = filteredShots.map(shot => {
                     const shotId = shot.id || shot._id;
                     const aspectRatio = Math.random() > 0.5 ? '4/3' : '3/4';
+                    const displayImage = Array.isArray(shot.images) && shot.images.length > 0 
+                        ? shot.images[0] 
+                        : shot.image;
                     return `
                         <div class="shot-card" onclick="openPreview('${shotId}')">
-                            <img class="shot-image" src="${shot.image}" alt="${shot.title}" style="aspect-ratio: ${aspectRatio}; object-fit: cover;">
+                            <img class="shot-image" src="${displayImage}" alt="${shot.title}" style="aspect-ratio: ${aspectRatio}; object-fit: cover;">
                             <div class="shot-overlay">
                                 <h3 class="shot-title">${shot.title}</h3>
                                 <div class="shot-author">
@@ -1772,7 +1912,20 @@
 
             currentShot = convertedShot;
 
-            document.getElementById('previewImage').src = shot.image;
+            // 处理图片显示
+            let imagesToDisplay = [];
+            if (Array.isArray(shot.images) && shot.images.length > 0) {
+                imagesToDisplay = shot.images;
+            } else if (shot.image) {
+                imagesToDisplay = [shot.image];
+            }
+
+            // 设置当前图片索引
+            window.currentPreviewImageIndex = 0;
+
+            // 更新预览图片
+            updatePreviewGallery(imagesToDisplay);
+
             document.getElementById('previewAvatar').textContent = getInitials(shot.author);
             document.getElementById('previewAuthorName').textContent = shot.author;
             document.getElementById('previewTime').textContent = formatTime(shot.createdAt);
@@ -1789,6 +1942,64 @@
 
             document.getElementById('previewModal').style.display = 'block';
             document.body.style.overflow = 'hidden';
+        }
+
+        function updatePreviewGallery(images) {
+            const previewImage = document.getElementById('previewImage');
+            const previewNav = document.getElementById('previewImageNav');
+            const previewDots = document.getElementById('previewImageDots');
+
+            if (images.length > 0) {
+                previewImage.src = images[window.currentPreviewImageIndex];
+
+                // 显示导航按钮和圆点指示器（如果有多张图）
+                if (images.length > 1) {
+                    previewNav.style.display = 'flex';
+
+                    // 生成圆点指示器
+                    previewDots.innerHTML = images.map((_, index) => `
+                        <div class="image-dot ${index === window.currentPreviewImageIndex ? 'active' : ''}" 
+                             onclick="setPreviewImage(${index})"></div>
+                    `).join('');
+                } else {
+                    previewNav.style.display = 'none';
+                    previewDots.innerHTML = '';
+                }
+            }
+        }
+
+        function navigatePreviewImage(direction) {
+            if (!currentShot) return;
+
+            let imagesToDisplay = [];
+            if (Array.isArray(currentShot.images) && currentShot.images.length > 0) {
+                imagesToDisplay = currentShot.images;
+            } else if (currentShot.image) {
+                imagesToDisplay = [currentShot.image];
+            }
+
+            if (imagesToDisplay.length <= 1) return;
+
+            // 更新索引
+            window.currentPreviewImageIndex += direction;
+            if (window.currentPreviewImageIndex < 0) {
+                window.currentPreviewImageIndex = imagesToDisplay.length - 1;
+            } else if (window.currentPreviewImageIndex >= imagesToDisplay.length) {
+                window.currentPreviewImageIndex = 0;
+            }
+
+            updatePreviewGallery(imagesToDisplay);
+        }
+
+        function setPreviewImage(index) {
+            window.currentPreviewImageIndex = index;
+            let imagesToDisplay = [];
+            if (Array.isArray(currentShot.images) && currentShot.images.length > 0) {
+                imagesToDisplay = currentShot.images;
+            } else if (currentShot.image) {
+                imagesToDisplay = [currentShot.image];
+            }
+            updatePreviewGallery(imagesToDisplay);
         }
         
         function closePreview() {
