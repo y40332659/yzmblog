@@ -497,6 +497,33 @@
         .upload-preview-item .remove-btn:hover {
             background-color: rgba(234, 76, 137, 0.9);
         }
+
+        .upload-preview-item.add-more {
+            border: 2px dashed #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s;
+        }
+
+        .upload-preview-item.add-more:hover {
+            border-color: #ea4c89;
+            background-color: rgba(234, 76, 137, 0.05);
+        }
+
+        .add-more-icon {
+            font-size: 32px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .add-more-text {
+            font-size: 12px;
+            color: #666;
+        }
         
         /* 作品预览模态框 */
         .preview-modal {
@@ -1071,8 +1098,8 @@
             <form onsubmit="handleUpload(event)">
                 <div class="form-group">
                     <label>作品图片</label>
-                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('uploadImage').click()">
-                        <div id="uploadPlaceholder">
+                    <div class="upload-area" id="uploadArea">
+                        <div id="uploadPlaceholder" onclick="document.getElementById('uploadImage').click()">
                             <div class="upload-icon">📷</div>
                             <div class="upload-text">点击上传图片<br>支持 JPG、PNG、GIF，建议尺寸 800x600<br>可上传多张图片</div>
                         </div>
@@ -1593,6 +1620,9 @@
                 console.error('图片上传失败:', error);
                 showToast('图片上传失败，请重试');
             }
+
+            // 清空文件输入，允许重复选择相同文件
+            e.target.value = '';
         }
 
         // 渲染上传预览
@@ -1605,6 +1635,7 @@
                 uploadPlaceholder.style.display = 'block';
                 uploadPreviews.classList.remove('show');
                 uploadArea.classList.remove('has-image');
+                uploadPreviews.innerHTML = '';
             } else {
                 uploadPlaceholder.style.display = 'none';
                 uploadPreviews.classList.add('show');
@@ -1615,7 +1646,12 @@
                         <img src="${url}" alt="预览 ${index + 1}">
                         <button class="remove-btn" onclick="removeImage(${index})">&times;</button>
                     </div>
-                `).join('');
+                `).join('') + `
+                    <div class="upload-preview-item add-more" onclick="document.getElementById('uploadImage').click()">
+                        <div class="add-more-icon">+</div>
+                        <div class="add-more-text">添加图片</div>
+                    </div>
+                `;
             }
         }
 
