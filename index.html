@@ -1907,38 +1907,55 @@
             });
         }
 
-        function addComment() {
+        async function addComment() {
             if (!currentShot) return;
-            
+
             const input = document.getElementById('detailCommentInput');
             const text = input.value.trim();
-            
+
             if (!text) {
                 showToast('请输入评论内容');
                 return;
             }
-            
-            const shots = getShots();
-            const shot = shots.find(s => s.id === currentShot.id);
-            if (!shot) return;
-            
-            const commentData = {
-                author: currentUser ? currentUser.username : '匿名用户',
-                authorId: currentUser ? currentUser.id : null,
-                text,
-                rating: selectedRating
-            };
-            
-            shot.comments.push(commentData);
-            currentShot = shot;
-            saveShots(shots);
-            
-            input.value = '';
-            document.getElementById('commentCount').textContent = shot.comments.length;
-            renderComments();
-            renderShots();
-            
-            showToast('评论发布成功！');
+
+            const token = getToken();
+            if (!token) {
+                showToast('请先登录');
+                openLoginModal();
+                return;
+            }
+
+            try {
+                const shotId = currentShot.id || currentShot._id;
+                const commentData = {
+                    content: text,
+                    rating: selectedRating
+                };
+
+                const response = await api.addComment(shotId, commentData, token);
+
+                if (response.message === '评论成功' || response.shot) {
+                    currentShot = response.shot;
+                    const shots = getShots();
+                    const shotIndex = shots.findIndex(s => (s.id || s._id) === shotId);
+                    if (shotIndex !== -1) {
+                        shots[shotIndex] = response.shot;
+                        saveShots(shots);
+                    }
+
+                    input.value = '';
+                    document.getElementById('commentCount').textContent = currentShot.comments.length;
+                    renderComments();
+                    renderShots();
+
+                    showToast('评论发布成功！');
+                } else {
+                    showToast(response.message || '评论失败');
+                }
+            } catch (error) {
+                console.error('评论失败:', error);
+                showToast('评论失败，请稍后重试');
+            }
         }
         
         function showToast(message) {
